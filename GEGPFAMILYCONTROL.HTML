@@ -195,5 +195,102 @@
     </div>
 <script src="Hub.js"></script>
 <script src="control.js"></script>
+<script>
+// ===== HUB INTEGRATION =====
+// Garantir que o Hub está disponível
+if(!window.Hub) window.Hub = {};
+
+// ID do usuário simulando multi-user (você pode gerar único)
+const USER_ID = 'user_001';
+
+// Inicializa o Hub
+Hub.init = function(){
+    if(!localStorage.getItem('hub_initialized')){
+        localStorage.setItem('hub_initialized', 'true');
+        console.log('Hub inicializado para o usuário:', USER_ID);
+    }
+}
+
+// Funções para ler/escrever saves
+Hub.getSave = function(key){
+    return JSON.parse(localStorage.getItem(key + USER_ID) || '{}');
+}
+
+Hub.updateSave = function(key, data){
+    localStorage.setItem(key + USER_ID, JSON.stringify(data));
+}
+
+// Bloqueio global
+Hub.toggleLock = function(lock){
+    localStorage.setItem('gegp_global_lock', lock ? '1' : '0');
+}
+
+// Retorna status do bloqueio
+Hub.isLocked = function(){
+    return localStorage.getItem('gegp_global_lock') === '1';
+}
+
+// Atualiza display do painel
+function refreshDashboard(){
+    const idle = Hub.getSave('idlegame_ovelha_gegp_').progress || 0;
+    const card = Hub.getSave('gegpPlusBalance').progress || 0;
+    const lab = Hub.getSave('lab_suzana_v4').progress || 0;
+    const total = idle + card + lab;
+
+    document.getElementById('percent-idle').innerText = idle + '%';
+    document.getElementById('bar-idle').style.width = idle + '%';
+
+    document.getElementById('percent-card').innerText = card + '%';
+    document.getElementById('bar-card').style.width = card + '%';
+
+    document.getElementById('percent-lab').innerText = lab + '%';
+    document.getElementById('bar-lab').style.width = lab + '%';
+
+    document.getElementById('display-total').innerText = total;
+}
+
+// Bloqueio via botão
+function toggleGameLock(){
+    const lock = !Hub.isLocked();
+    Hub.toggleLock(lock);
+
+    const icon = document.getElementById('lock-state-icon').querySelector('i');
+    const desc = document.getElementById('lock-state-desc');
+    if(lock){
+        icon.className = 'fa-solid fa-lock text-red-500';
+        desc.innerText = 'Jogos estão BLOQUEADOS';
+    } else {
+        icon.className = 'fa-solid fa-unlock text-white';
+        desc.innerText = 'Jogos estão liberados para jogar';
+    }
+}
+
+// PIN check
+function unlockPanel(){
+    const pin = document.getElementById('pin-input').value;
+    if(pin === '1234'){
+        document.getElementById('parent-content').classList.remove('blur-content');
+        document.getElementById('lock-overlay').style.display = 'none';
+        document.getElementById('pin-error').style.opacity = 0;
+    } else {
+        document.getElementById('pin-error').style.opacity = 1;
+    }
+}
+
+function lockPanel(){
+    document.getElementById('parent-content').classList.add('blur-content');
+    document.getElementById('lock-overlay').style.display = 'flex';
+}
+
+// Inicialização
+Hub.init();
+refreshDashboard();
+
+// Atualiza a cada 5s
+setInterval(refreshDashboard, 5000);
+
+// Data
+document.getElementById('system-date').innerText = new Date().toLocaleDateString('pt-BR');
+</script>
 </body>
 </html>
