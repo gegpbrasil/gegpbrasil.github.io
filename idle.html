@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Idle Ovelha GEGP</title>
+
+<!-- Link do CSS externo -->
+<link rel="stylesheet" href="idle.css">
+
+</head>
+<body>
+  <div class="app">
+    <header style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <h1>Ovelha idle GEGP</h1>
+        <div class="rate" id="dateInfo"></div>
+        <div class="controls">
+          <button class="secondary" id="saveBtn">Salvar agora</button>
+          <button class="secondary" id="resetBtn">Resetar progresso</button>
+          <button class="secondary" id="statsBtn">Estatísticas do Jogo</button>
+        </div>
+      </div>
+      <div class="currency-group">
+        <div>
+          <span class="money" id="money">R$ 0,00</span>
+          <div class="rate" id="rate">+ R$ 0,00 / s</div>
+        </div>
+        <div style="margin-top: 8px;">
+          <span class="gegp-money" id="gegp">GEGP+ 0</span>
+          <div class="rate" id="gegpRate">R$ 0 / 1.000 para GEGP+ 1</div>
+          <div class="gegp-progress"><div class="gegp-bar" id="gegpBar"></div></div>
+        </div>
+      </div>
+    </header>
+    <div class="grid">
+      <div class="panel">
+        <h2>Personagens para Comprar (R$)</h2>
+        <div class="list" id="store"></div>
+        <div class="footer-note">Dica: Comprar mais unidades aumenta sua renda base por segundo, mas pense em economizar sempre!.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Skins (Raridades e GEGP+)</h2>
+        <div class="list" id="skinList"></div>
+        <div class="footer-note">Skins dão bônus de renda permanentes ou temporários, então sempre veja se o beneficio dela te ajuda agora (GEGP+).</div>
+      </div>
+
+      <div class="panel">
+        <h2>Ativar Supers (GEGP+)</h2>
+        <div class="list" id="superList"></div>
+        <div class="hint" id="supersInfo">
+          Supers ativas dão bônus massivos por 1200s (20 minutos), então use elas com sabedoria.
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Resumo & Estratégia</h2>
+        <div id="migrationMessage"></div>
+        <div class="hint" id="summary"></div>
+        
+        <div class="hint" style="margin-top:12px">
+          Promoção do Gabriel ativa em março e agosto: preço cai por 50% mas depois aumenta 10%.
+          <span class="badge" id="promoBadge" style="display:none">PROMO ATIVA</span>
+        </div>
+        
+        <div class="footer-note" style="margin-top:16px">O jogo agora foca em combos de Supers e Skins Lendárias/GEGP+ para maximizar a renda. 🐑</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Resetar Progresso -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal">
+      <h3>Resetar Progresso</h3>
+      <p>Tem certeza que deseja resetar todo o seu progresso (Dinheiro, GEGP+, Personagens, Skins e Supers)? Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button class="secondary" id="cancelResetBtn">Cancelar</button>
+        <button id="confirmResetBtn">Resetar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Estatísticas do Jogo -->
+  <div class="modal-overlay" id="statsModal">
+    <div class="modal">
+      <h3>Estatísticas do Jogo</h3>
+      <table class="stats-table">
+        <tr>
+          <th>Tempo Total de Jogo (online)</th>
+          <td id="statPlaytime">0s</td>
+        </tr>
+        <tr>
+          <th>Personagens Comprados (unidades)</th>
+          <td id="statItemsBought">0</td>
+        </tr>
+        <tr class="total-row">
+          <th>Dinheiro Total Ganho (R$)</th>
+          <td id="statMoneyEarned">R$ 0,00</td>
+        </tr>
+        <tr>
+          <th>GEGP+ Total Ganho</th>
+          <td id="statGEGPEarned">0</td>
+        </tr>
+      </table>
+      <p style="margin-top:20px; font-size: 0.85rem; color: #718096;"> As estatísticas são acumulativas e salvas no seu navegador, exceto o tempo que só é contado enquanto o jogo está aberto.</p>
+      <div class="modal-actions">
+        <button class="secondary" id="closeStatsBtn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Link do JS externo -->
+<script src="idle.js"></script>
+</body>
+</html>

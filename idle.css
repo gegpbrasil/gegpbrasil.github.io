@@ -1,0 +1,310 @@
+/* Estilos Base para o Jogo (Mantidos do Original) */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7fc;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.app {
+    max-width: 1200px;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+h1 {
+    color: #1a202c;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+h2 {
+    font-size: 1.25rem;
+    color: #2c5282;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.panel {
+    background: #eef3fb;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+.currency-group > div {
+    text-align: right;
+}
+.money {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #48bb78; /* Verde */
+    display: block;
+}
+.gegp-money {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #805ad5; /* Roxo GEGP+ */
+    display: block;
+}
+.rate {
+    font-size: 0.9rem;
+    color: #718096;
+}
+.controls button {
+    margin-right: 8px;
+}
+
+/* Itens e Listas */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.2s;
+}
+.item:hover {
+    background-color: #f7f9fd;
+}
+.item .title {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1rem;
+}
+.item .meta {
+    font-size: 0.8rem;
+    color: #718096;
+}
+.item .owned {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #4c51bf;
+    margin-top: 4px;
+}
+
+/* Botões */
+button {
+    background-color: #4c51bf; /* Indigo */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+button:hover:not(:disabled) {
+    background-color: #5a62c8;
+    transform: translateY(-1px);
+}
+button:active:not(:disabled) {
+    background-color: #3c449c;
+}
+button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+}
+.secondary {
+    background-color: #fff;
+    color: #4c51bf;
+    border: 1px solid #4c51bf;
+}
+.secondary:hover:not(:disabled) {
+    background-color: #ebf4ff;
+}
+.secondary:active:not(:disabled) {
+    background-color: #c3dafe;
+}
+.buy-btn {
+    min-width: 100px;
+}
+.gegp-btn {
+    background-color: #805ad5; /* Roxo */
+}
+.gegp-btn:hover:not(:disabled) {
+    background-color: #9f7aea;
+}
+.gegp-btn:active:not(:disabled) {
+    background-color: #6b46c1;
+}
+
+/* Elementos Adicionais */
+.gegp-progress {
+    height: 6px;
+    background-color: #e2e8f0;
+    border-radius: 3px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+.gegp-bar {
+    height: 100%;
+    background-color: #805ad5;
+    transition: width 0.3s;
+}
+.hint {
+    background-color: #f0fff4;
+    border: 1px solid #9ae6b4;
+    padding: 10px;
+    border-radius: 6px;
+    color: #276749;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+.footer-note {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e2e8f0;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: 9999px;
+    background-color: #f6ad55;
+    color: #975a16;
+}
+.migration-msg {
+    background-color: #fff5f5;
+    border: 1px solid #feb2b2;
+    padding: 10px;
+    border-radius: 6px;
+    color: #9b2c2c;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+.super-timer {
+    font-size: 0.75rem;
+    color: #e53e3e;
+    font-weight: 600;
+}
+.active-super {
+    border: 2px solid #e53e3e;
+    background-color: #fff5f5;
+}
+
+/* Raridade Badges */
+.rarity-badge {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    font-weight: 700;
+    border-radius: 4px;
+    margin-left: 4px;
+}
+.rarity-Comum { background-color: #e2e8f0; color: #4a5568; }
+.rarity-Rara { background-color: #bee3f8; color: #2b6cb0; }
+.rarity-Épica { background-color: #fbd38d; color: #975a16; }
+.rarity-Lendária { background-color: #feebc8; color: #c05621; }
+.rarity-GEGP { background-color: #e9d8fd; color: #6b46c1; }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+}
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.modal {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+.modal-overlay.active .modal {
+    transform: scale(1);
+}
+.modal h3 {
+    margin-top: 0;
+    color: #2c5282;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+.modal p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Estilo para as Estatísticas */
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+.stats-table th, .stats-table td {
+    padding: 10px 0;
+    text-align: left;
+    border-bottom: 1px solid #eef3fb;
+}
+.stats-table th {
+    font-weight: 600;
+    color: #4a5568;
+    width: 60%;
+}
+.stats-table td {
+    font-weight: 700;
+    color: #2d3748;
+    text-align: right;
+}
+.stats-table tr:last-child td, .stats-table tr:last-child th {
+    border-bottom: none;
+}
+.stats-table .total-row td {
+    color: #48bb78; /* Verde destaque */
+}
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+    .app { padding: 10px; }
+    .grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: center !important; text-align: center; }
+    .currency-group { margin-top: 15px; }
+    .currency-group > div { text-align: center; }
+    .controls { margin-top: 10px; }
+    .money { font-size: 2rem; }
+}
