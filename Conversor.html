@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco da Ovelha | Sistema Financeiro GEGP+</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="Conversor.css">
+
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-landmark"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">BANCO DA <span class="text-emerald-600">OVELHA</span></h1>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sistema de Conversão e Crédito</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <div class="glass-morphism px-4 py-2 rounded-2xl border flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Brasília</span>
+                    <span id="br-time" class="text-sm font-mono font-bold">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Saldos e Conversor -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bank-card p-8 rounded-[2.5rem] relative overflow-hidden">
+                    <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mb-2">Seu Patrimônio Universal</p>
+                    <h2 class="text-5xl font-black mb-8" id="total-balance">0.00 <span class="text-sm font-normal">GEGP Universais</span></h2>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                            <p class="text-[10px] text-blue-200 uppercase font-bold mb-1">Idle (GEGP+)</p>
+                            <p class="text-lg font-bold" id="bal-idle">0</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                            <p class="text-[10px] text-blue-200 uppercase font-bold mb-1">Card (GEGP+)</p>
+                            <p class="text-lg font-bold" id="bal-card">0</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                            <p class="text-[10px] text-blue-200 uppercase font-bold mb-1">LDS2 (GEGP+)</p>
+                            <p class="text-lg font-bold" id="bal-lds2">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversor -->
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-repeat text-emerald-500"></i> Câmbio Proporcional
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-2">Converter De (Jogo)</label>
+                            <select id="src-game" onchange="updatePreview()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none">
+                                <option value="IDLE">Idle Ovelha (1 = 100 Univ.)</option>
+                                <option value="CARD">Ovelha Card (1 = 5000 Univ.)</option>
+                                <option value="LDS2">LDS2 Mobile (1 = 1 Univ.)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-2">Converter Para (Destino)</label>
+                            <select id="dst-game" onchange="updatePreview()" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none">
+                                <option value="IDLE">Idle Ovelha</option>
+                                <option value="CARD">Ovelha Card</option>
+                                <option value="LDS2">LDS2 Mobile</option>
+                                <option value="VAULT">Cofre Bancário (+30% Rend.)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="flex-1 w-full">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-2">Quantidade de GEGP+ (Origem)</label>
+                            <input type="number" id="trans-amount" oninput="updatePreview()" placeholder="0" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xl font-bold outline-none">
+                        </div>
+                        <div class="text-center px-4">
+                            <i class="fa-solid fa-right-long text-slate-300 text-2xl hidden md:block"></i>
+                        </div>
+                        <div class="flex-1 w-full p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                            <p class="text-[10px] text-emerald-600 font-bold uppercase mb-1">Você Recebe aprox.</p>
+                            <p id="preview-text" class="text-xl font-black text-emerald-700">0.00</p>
+                        </div>
+                    </div>
+
+                    <button onclick="executeTransfer()" class="w-full mt-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-lg">CONFIRMAR TRANSAÇÃO</button>
+                </div>
+            </div>
+
+            <!-- Cofre e Crédito -->
+            <div class="space-y-6">
+                
+                <!-- Cofre -->
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 vault-glow">
+                    <h3 class="font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-vault text-amber-500"></i> COFRE E RENDIMENTO
+                    </h3>
+                    <div class="text-center mb-6">
+                        <p class="text-3xl font-black text-slate-900" id="vault-balance">0.00</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Saldo Universal no Cofre</p>
+                    </div>
+                    <button onclick="withdrawFromVault()" class="w-full py-3 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-xl font-bold transition-all">Resgatar (10% Retenção)</button>
+                    <p class="text-[9px] text-center text-slate-400 mt-3">Rendimento: +30% ao depositar. 10% retido por 30 dias no resgate.</p>
+                </div>
+
+                <!-- Empréstimo -->
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-holding-dollar text-blue-500"></i> EMPRÉSTIMO
+                    </h3>
+                    <div id="loan-active-box" class="hidden p-4 bg-red-50 rounded-2xl mb-4 border-l-4 border-red-500">
+                        <p class="text-[10px] text-red-600 font-bold uppercase">Dívida Ativa (Univ)</p>
+                        <p id="loan-due-text" class="text-lg font-black text-red-900">0.00</p>
+                        <p id="loan-timer-text" class="text-[9px] text-red-500 mt-1 font-bold">Próxima Parcela em Brasília: --</p>
+                    </div>
+                    <div id="loan-input-box" class="space-y-4">
+                        <input type="number" id="loan-amount" max="1000" placeholder="Até 1000 Univ." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none">
+                        <button onclick="takeLoan()" class="w-full py-4 btn-gold rounded-2xl font-black shadow-lg">PEGAR EMPRÉSTIMO</button>
+                    </div>
+                </div>
+
+                <div class="glass-morphism p-6 rounded-[2rem] border">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-4">LOGS DO BANCO</h4>
+                    <div id="bank-logs" class="space-y-2 text-[10px] font-bold text-slate-500 max-h-40 overflow-y-auto">
+                        Aguardando transações...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Externo -->
+    <script src="Conversor.js"></script>
+</body>
+</html>
