@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ovelha Card Game | Heróis vs Vilões</title>
+    
+    <!-- Link do CSS externo -->
+    <link rel="stylesheet" href="Ovelhacard.css">
+
+</head>
+<body>
+
+<div class="container">
+    <h1>Heróis vs Vilões</h1>
+    <p style="color: #aaa; margin-top: 0;">Coleção: O Teste de Lealdade</p>
+
+    <div class="stats">
+        <div class="stat-item" id="balanceDisplay">GEGP+ : 0</div>
+        <div class="stat-item" id="sessionDisplay">Sessão: 00:00:00</div>
+    </div>
+
+    <div class="display-area" id="cardDisplay">
+        <span id="statusMsg">O destino está sendo traçado...</span>
+    </div>
+
+    <button id="openBtn">INVOCAR CARTA (5H)</button>
+    <div id="timerText"></div>
+
+    <div class="warning-zone">
+        <strong>⚠️ PROIBIÇÃO ABSOLUTA DE VENDA:</strong>
+        <ul>
+            <li>Comercializar estas cartas é estritamente proibido.</li>
+            <li>O sistema de Local Storage impede abusos temporais.</li>
+            <li>O contador é persistente (não reinicia ao atualizar).</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Link do JS externo -->
+<script src="Ovelhacard.js"></script>
+
+</body>
+</html>
