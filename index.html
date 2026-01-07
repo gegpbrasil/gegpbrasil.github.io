@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEGP Brasil Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+    }
+    header h1 {
+      font-size: 2.8em;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      color: #ffd700;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    }
+    header p {
+      font-size: 1.1em;
+      color: #ccc;
+    }
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      padding: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      backdrop-filter: blur(5px);
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+    }
+    .card h2 {
+      font-size: 1.4em;
+      color: #ffd700;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 0.95em;
+      color: #ddd;
+      margin-bottom: 15px;
+    }
+    .card a {
+      display: inline-block;
+      padding: 10px 18px;
+      background: #ffd700;
+      color: #0f2027;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .card a:hover {
+      background: #ffb800;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 2em; }
+      .card a { padding: 8px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GEGP Brasil Games</h1>
+    <p>Hub oficial dos jogos e projetos da Vila da Ovelha</p>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Banco da Ovelha</h2>
+      <p>Gerencie e converta dados da Ovelha</p>
+      <a href="Conversor.html">Acessar</a>
+    </div>
+    <div class="card">
+      <h2>Controle Parental</h2>
+      <p>GEGP Family Control</p>
+      <a href="GEGPFAMILYCONTROL.HTML">Acessar</a>
+    </div>
+    <div class="card">
+      <h2>Laboratória da Doutra Suzana 2</h2>
+      <p>Exploração pré-idle</p>
+      <a href="LDS2.HTML">Acessar</a>
+    </div>
+    <div class="card">
+      <h2>Ovelha Card Game</h2>
+      <p>Jogue com as cartas da Vila da Ovelha</p>
+      <a href="Ovelhacard.html">Acessar</a>
+    </div>
+    <div class="card">
+      <h2>Ovelha Idle</h2>
+      <p>Idle game da Vila da Ovelha</p>
+      <a href="idle.html">Acessar</a>
+    </div>
+    <div class="card">
+      <h2>Recompensas Sazonais</h2>
+      <p>Passe e conquiste prêmios especiais</p>
+      <a href="passe.html">Acessar</a>
+    </div>
+  </main>
+</body>
+</html>
