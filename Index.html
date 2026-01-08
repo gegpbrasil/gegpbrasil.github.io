@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>GEGP Brasil | Index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    button {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: white;
+      padding: 18px;
+      font-size: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #3b82f6;
+      transform: translateY(-2px);
+    }
+
+    .desc {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🌌 GEGP BRASIL</h1>
+
+    <div class="grid">
+      <button onclick="go('Hub.html')">
+        Hub Universo
+        <div class="desc">Save unificado, banco, passe</div>
+      </button>
+
+      <button onclick="go('Idle.html')">
+        Ovelha Idle
+        <div class="desc">Idle Game</div>
+      </button>
+
+      <button onclick="go('Ovelhacard.html')">
+        Ovelha Card
+        <div class="desc">Cartas e pontuação</div>
+      </button>
+
+      <button onclick="go('LDS2.html')">
+        Laboratória Suzana 2
+        <div class="desc">Lab / Experimentos</div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function go(page) {
+      window.location.href = page;
+    }
+  </script>
+
+</body>
+</html>
