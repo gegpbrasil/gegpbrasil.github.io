@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    /* Reset básico para garantir que nada saia do lugar */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -33,6 +34,7 @@
       font-size: 2.8rem;
       margin-bottom: 40px;
       letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .grid {
@@ -54,12 +56,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      width: 100%;
+      height: 100%; /* Garante altura consistente */
     }
 
     button:hover {
       background: #3b82f6;
       transform: translateY(-3px) scale(1.03);
       border-color: #60a5fa;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
     .desc {
@@ -69,6 +74,7 @@
       line-height: 1.2;
     }
 
+    /* Ajustes para Celular */
     @media (max-width: 480px) {
       h1 {
         font-size: 2rem;
@@ -89,23 +95,27 @@
     <h1>🌌 GEGP BRASIL</h1>
 
     <div class="grid">
+      <!-- Botão 1 -->
       <button onclick="go('HTML/Hub.html')">
         Hub Universo
         <div class="desc">Save unificado, banco, passe</div>
       </button>
 
+      <!-- Botão 2 -->
       <button onclick="go('HTML/idle.html')">
         Ovelha Idle
         <div class="desc">Idle Game</div>
       </button>
 
+      <!-- Botão 3 -->
       <button onclick="go('HTML/Ovelhacard.html')">
         Ovelha Card
         <div class="desc">Cartas e pontuação</div>
       </button>
 
-      <button onclick="go('HTML/LDS2.html')">
-        Laboratória Suzana 2
+      <!-- Botão 4 -->
+      <button onclick="go('HTML/LDS2.HTML')">
+        Laboratório Suzana 2
         <div class="desc">Lab / Experimentos</div>
       </button>
     </div>
@@ -113,23 +123,7 @@
 
   <script>
     function go(page) {
-      // Mantém o caminho relativo correto
-      window.location.href = page;
-    }
-  </script>
-
-</body>
-</html>      </button>
-
-      <button onclick="go('HTML/LDS2.html')">
-        Laboratória Suzana 2
-        <div class="desc">Lab / Experimentos</div>
-      </button>
-    </div>
-  </div>
-
-  <script>
-    function go(page) {
+      // Redireciona para o arquivo na pasta HTML
       window.location.href = page;
     }
   </script>
