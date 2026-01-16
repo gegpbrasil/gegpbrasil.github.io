@@ -7,11 +7,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Container do Passe Reworked */
+.pass-container {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 0, 255, 0.1));
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Item do Passe (Dourado e Neon) */
+.pass-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #ffd700;
+    margin: 8px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.pass-item.unlocked {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
+    border-left: 4px solid #00ffcc;
+    box-shadow: -5px 0 10px rgba(0, 255, 204, 0.2);
+}
+
+/* Badge de "PREMIUM" ou "REWORK" */
+.badge-rework {
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: glow-text 1.5s infinite alternate;
+}
+
+/* Botão de Resgatar com brilho */
+.btn-claim {
+    background: #ffd700;
+    color: #1a052e;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #b8860b;
+    transition: all 0.1s;
+}
+
+.btn-claim:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #b8860b;
+}
+
+/* Efeito de brilho no texto dourado */
+@keyframes glow-text {
+    from { text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff; }
+    to { text-shadow: 0 0 10px #fff, 0 0 20px #00ffff; }
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
