@@ -383,3 +383,8 @@
         };
 
         window.onload = () => game.init();
+// Faz o navegador enxergar o jogo e a interface
+window.game = game;
+window.ui = ui;
+
+window.onload = () => game.init();
