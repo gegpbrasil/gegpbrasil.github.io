@@ -3,253 +3,920 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEGP Universe Hub</title>
+    <title>GEGP Universe Hub 6.0 - Battle Pass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-/* FORÇAR FUNDO ESCURO DO CARNAVAL */
-body { 
-    background-color: #05050a !important; 
-    color: white !important;
-    margin: 0;
-    padding: 0;
-}
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Barra de Progresso */
+        .progress-bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; transition: width 0.5s ease; }
 
-/* Container do Passe Reworked - Ajustado para não ficar transparente demais */
-.pass-container {
-    background: #1a052e !important; /* Roxo bem escuro de base */
-    background-image: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 0, 255, 0.05)) !important;
-    border: 2px solid #ffd700;
-    border-radius: 15px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-}
-
-/* Itens do Passe */
-.pass-item {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-left: 4px solid #ffd700;
-    margin: 8px;
-    padding: 12px;
-    transition: all 0.3s ease;
-}
-
-.pass-item.unlocked {
-    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent) !important;
-    border-left: 4px solid #00ffcc;
-    box-shadow: -5px 0 10px rgba(0, 255, 204, 0.1);
-}
-
-/* Badge Neon */
-.badge-rework {
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 8px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    animation: glow-text 1.5s infinite alternate;
-}
-
-/* Botão de Resgatar */
-.btn-claim {
-    background: #ffd700 !important;
-    color: #1a052e !important;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #b8860b;
-    transition: all 0.1s;
-}
-
-.btn-claim:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #b8860b;
-}
-
-@keyframes glow-text {
-    from { text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff; }
-    to { text-shadow: 0 0 10px #fff, 0 0 20px #00ffff; }
-}
+        /* Estilo do Passe */
+        .pass-card { min-width: 140px; transition: all 0.2s; }
+        .pass-card.locked { opacity: 0.5; filter: grayscale(1); }
+        .pass-card.unlocked { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+        .pass-card.claimed { opacity: 0.7; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        
+        /* Notificação Toast */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: rgba(15, 23, 42, 0.95); border-left: 4px solid #6366f1; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transform: translateX(100%); animation: slideIn 0.3s forwards; display: flex; items-center; gap: 12px; min-width: 300px; }
+        .toast.success { border-color: #10b981; }
+        .toast.error { border-color: #ef4444; }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        @keyframes slideOut { to { transform: translateX(120%); opacity: 0; } }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 pb-24">
+
+    <!-- Sistema de Notificação -->
+    <div id="toast-container"></div>
 
     <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg relative group">
                     <i class="fa-solid fa-infinity"></i>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900" title="Online"></div>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold">GEGP <span class="text-indigo-400">UNIVERSE</span></h1>
-                    <p class="text-xs text-slate-400">Hub de Save Unificado & Controle</p>
+                    <h1 class="text-2xl font-bold tracking-tight">GEGP <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">UNIVERSE</span> <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded ml-2 border border-slate-700">v6.0</span></h1>
+                    <p class="text-xs text-slate-400">Hub Central de Economia & Save</p>
                 </div>
             </div>
             
-            <div class="flex gap-2">
-                <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold">Dashboard</button>
-                <button onclick="switchTab('bank')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold">Banco</button>
-                <button onclick="switchTab('pass')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold">Passe</button>
-                <button onclick="switchTab('system')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-bold">Save</button>
+            <div class="flex flex-wrap justify-center gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-800">
+                <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold border border-slate-700 transition-all"><i class="fa-solid fa-chart-pie mr-2 text-indigo-400"></i>Dash</button>
+                <button onclick="switchTab('bank')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold border border-slate-700 transition-all"><i class="fa-solid fa-building-columns mr-2 text-emerald-400"></i>Banco</button>
+                <button onclick="switchTab('pass')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold border border-slate-700 transition-all relative">
+                    <i class="fa-solid fa-ticket mr-2 text-amber-400"></i>Passe
+                    <span id="nav-pass-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full hidden"></span>
+                </button>
+                <button onclick="switchTab('system')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all"><i class="fa-solid fa-floppy-disk mr-2"></i>Save</button>
             </div>
         </header>
 
-        <!-- DASHBOARD TAB -->
+        <!-- DASHBOARD -->
         <div id="dashboard" class="tab-content active space-y-6">
+            <!-- Cards de Saldo -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Idle Stats -->
-                <div class="glass p-6 rounded-2xl border-l-4 border-emerald-500">
+                <div class="glass p-6 rounded-2xl border-b-4 border-emerald-500 hover:bg-slate-800/50 transition-colors group">
                     <div class="flex justify-between mb-2">
                         <h3 class="font-bold text-emerald-400">Idle Ovelha</h3>
-                        <i class="fa-solid fa-sheep text-emerald-500/50"></i>
+                        <i class="fa-solid fa-sheep text-emerald-500/30 group-hover:text-emerald-500 transition-colors"></i>
                     </div>
-                    <p id="disp-idle" class="text-3xl font-bold">0</p>
-                    <p class="text-xs text-slate-500">GEGP+</p>
+                    <p id="disp-idle" class="text-3xl font-bold font-mono">0</p>
+                    <p class="text-xs text-slate-500">Saldo GEGP+</p>
                 </div>
-                <!-- Card Stats -->
-                <div class="glass p-6 rounded-2xl border-l-4 border-blue-500">
+                <div class="glass p-6 rounded-2xl border-b-4 border-blue-500 hover:bg-slate-800/50 transition-colors group">
                     <div class="flex justify-between mb-2">
                         <h3 class="font-bold text-blue-400">Ovelha Card</h3>
-                        <i class="fa-solid fa-clone text-blue-500/50"></i>
+                        <i class="fa-solid fa-clone text-blue-500/30 group-hover:text-blue-500 transition-colors"></i>
                     </div>
-                    <p id="disp-card" class="text-3xl font-bold">0</p>
-                    <p class="text-xs text-slate-500">Score/Coins</p>
+                    <p id="disp-card" class="text-3xl font-bold font-mono">0</p>
+                    <p class="text-xs text-slate-500">Saldo/Score</p>
                 </div>
-                <!-- Lab Stats -->
-                <div class="glass p-6 rounded-2xl border-l-4 border-purple-500">
+                <div class="glass p-6 rounded-2xl border-b-4 border-purple-500 hover:bg-slate-800/50 transition-colors group">
                     <div class="flex justify-between mb-2">
                         <h3 class="font-bold text-purple-400">Lab Suzana</h3>
-                        <i class="fa-solid fa-flask text-purple-500/50"></i>
+                        <i class="fa-solid fa-flask text-purple-500/30 group-hover:text-purple-500 transition-colors"></i>
                     </div>
-                    <p id="disp-lab" class="text-3xl font-bold">0</p>
-                    <p class="text-xs text-slate-500">GEGP+</p>
+                    <p id="disp-lab" class="text-3xl font-bold font-mono">0</p>
+                    <p class="text-xs text-slate-500">Prestigio (Renome)</p>
                 </div>
             </div>
 
-            <!-- Controle Rápido -->
-            <div class="glass p-6 rounded-2xl flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-white">Status do Sistema</h3>
-                    <p id="lock-status" class="text-emerald-500 font-bold">LIBERADO 🔓</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Painel de Controle -->
+                <div class="glass p-6 rounded-2xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-shield-halved text-indigo-400"></i> Segurança GEGP</h3>
+                            <p class="text-xs text-slate-400 mt-1">Status: <span id="lock-status" class="font-bold text-emerald-500">MONITORADO</span></p>
+                        </div>
+                        <button onclick="Universe.Control.promptToggleLock()" class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center hover:bg-slate-600 text-slate-300">
+                            <i class="fa-solid fa-gear text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-4">
+                        <button id="btn-bonus" onclick="Universe.Control.claimAllowance()" class="flex-1 py-3 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 rounded-xl text-xs font-bold border border-emerald-500/30 flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-gift text-lg"></i> 
+                            <div class="text-left">
+                                <div class="uppercase leading-tight">Mesada Diária</div>
+                                <div id="bonus-timer" class="text-[10px] opacity-70">Disponível</div>
+                            </div>
+                        </button>
+                        
+                        <button onclick="Universe.Control.emergencyLock()" class="px-4 py-3 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded-xl text-xs font-bold border border-red-500/30 transition-all" title="Bloqueio de Pânico">
+                            <i class="fa-solid fa-lock"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="Universe.Control.sendBonus()" class="px-4 py-2 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 rounded-lg text-xs font-bold border border-emerald-500/30">
-                        <i class="fa-solid fa-gift mr-1"></i> Enviar Mesada
-                    </button>
-                    <button onclick="Universe.Control.toggleLock()" class="px-4 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-lg text-xs font-bold border border-red-500/30">
-                        <i class="fa-solid fa-lock mr-1"></i> Alternar Bloqueio
-                    </button>
+
+                <!-- Painel de Riqueza -->
+                <div class="glass p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10"></div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase mb-2 relative">Patrimônio Líquido Estimado</h3>
+                    <p id="disp-networth" class="text-4xl font-bold text-white mb-2 relative font-mono tracking-tight">U$ 0.00</p>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden relative">
+                        <div id="bar-wealth" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-0 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- BANK TAB -->
+        <!-- BANK -->
         <div id="bank" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass p-8 rounded-3xl">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-emerald-400"></i> Conversor</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Área de Câmbio -->
+                <div class="lg:col-span-7 glass p-8 rounded-3xl border border-slate-700">
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-emerald-400"></i> Câmbio Universal</h2>
                     
                     <div class="space-y-4">
-                        <div>
-                            <label class="text-xs text-slate-400 font-bold uppercase">Origem</label>
-                            <select id="bank-from" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 outline-none">
-                                <option value="IDLE">Idle Ovelha (1:100)</option>
-                                <option value="CARD">Card (1:5000)</option>
-                                <option value="LAB">Lab (1:1)</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 block">De (Origem)</label>
+                                <select id="bank-from" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 transition-colors text-slate-300">
+                                    <option value="IDLE">Idle Ovelha (1:100)</option>
+                                    <option value="CARD">Card (1:5000)</option>
+                                    <option value="LAB">Lab Suzana (1:1)</option>
+                                    <option value="VAULT">Cofre (Universais)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 block">Para (Destino)</label>
+                                <select id="bank-to" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 transition-colors text-slate-300">
+                                    <option value="VAULT">Cofre (+Bônus Seguro)</option>
+                                    <option value="IDLE">Idle Ovelha</option>
+                                    <option value="CARD">Ovelha Card</option>
+                                    <option value="LAB">Lab Suzana</option>
+                                </select>
+                            </div>
                         </div>
+                        
                         <div>
-                            <label class="text-xs text-slate-400 font-bold uppercase">Destino</label>
-                            <select id="bank-to" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 outline-none">
-                                <option value="VAULT">Cofre (+30% Bonus)</option>
-                                <option value="IDLE">Idle Ovelha</option>
-                                <option value="CARD">Card</option>
-                                <option value="LAB">Lab</option>
-                            </select>
+                            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1 block">Valor</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-slate-500 text-sm">$</span>
+                                <input type="number" id="bank-amount" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 pl-8 outline-none font-mono focus:border-indigo-500 transition-colors text-white" placeholder="0">
+                                <button onclick="document.getElementById('bank-amount').value = 999999" class="absolute right-2 top-2 px-2 py-1.5 text-[10px] bg-slate-700 rounded hover:bg-slate-600 text-white font-bold">MAX</button>
+                            </div>
                         </div>
-                        <div>
-                            <label class="text-xs text-slate-400 font-bold uppercase">Quantidade</label>
-                            <input type="number" id="bank-amount" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 outline-none font-mono" placeholder="0">
-                        </div>
-                        <button onclick="executeBank()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl mt-2">CONFIRMAR TRANSAÇÃO</button>
+
+                        <button onclick="executeBank()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all flex justify-center items-center gap-2 active:scale-95">
+                            CONFIRMAR TRANSAÇÃO <i class="fa-solid fa-check"></i>
+                        </button>
+                        
+                        <p class="text-[10px] text-center text-slate-500 mt-2"><i class="fa-solid fa-circle-info mr-1"></i> Taxa de Câmbio de 5% aplica-se a saques do Cofre.</p>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="glass p-6 rounded-3xl relative overflow-hidden">
-                        <i class="fa-solid fa-vault absolute -right-4 -bottom-4 text-9xl text-amber-500/10"></i>
-                        <h3 class="text-amber-500 font-bold uppercase text-xs">Cofre Universais</h3>
-                        <p id="disp-vault" class="text-4xl font-bold text-white mb-4">0.00</p>
-                        <button onclick="Universe.Bank.withdrawVault()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold">RESGATAR (10% Taxa)</button>
+                <!-- Info Cofre & Empréstimo -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass p-6 rounded-3xl relative overflow-hidden border border-amber-500/20">
+                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
+                        <i class="fa-solid fa-vault absolute right-6 top-6 text-4xl text-amber-500/20"></i>
+                        
+                        <h3 class="text-amber-500 font-bold uppercase text-xs tracking-widest mb-1">Cofre Blindado</h3>
+                        <p id="disp-vault" class="text-4xl font-bold text-white mb-4 font-mono">0.00 <span class="text-sm text-slate-500">Univ.</span></p>
+                        
+                        <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                            <p class="text-[10px] text-slate-400">O saldo no cofre não é afetado por resets nos jogos individuais. Use-o para salvar seu progresso entre temporadas.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-3xl border border-red-500/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-red-400 font-bold uppercase text-xs tracking-widest"><i class="fa-solid fa-hand-holding-dollar mr-1"></i> Empréstimos</h3>
+                            <span id="loan-status" class="text-[10px] px-2 py-0.5 bg-slate-800 rounded text-slate-400">Sem Dívidas</span>
+                        </div>
+
+                        <div id="loan-active-panel" class="hidden text-center py-2">
+                            <p class="text-xs text-slate-400">Dívida Ativa:</p>
+                            <p id="disp-loan-amount" class="text-2xl font-bold text-red-500 font-mono mb-2">0.00</p>
+                            <button onclick="Universe.Bank.payLoan()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg mb-1">PAGAR COM COFRE</button>
+                            <p class="text-[10px] text-red-400/70">Juros diários de 1% se não pago.</p>
+                        </div>
+
+                        <div id="loan-offer-panel">
+                            <div class="flex justify-between text-xs text-slate-400 mb-2">
+                                <span>Limite: <span id="loan-limit" class="text-white">0</span></span>
+                                <span>Juros: <span class="text-red-400">30%</span></span>
+                            </div>
+                            <button onclick="Universe.Bank.takeLoan()" class="w-full py-3 bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 font-bold rounded-xl text-sm transition-all">
+                                PEGAR EMPRÉSTIMO
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PASS TAB -->
+        <!-- PASSE E MISSÕES -->
         <div id="pass" class="tab-content">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 class="text-xl font-bold">Passe de Batalha</h2>
-                    <p class="text-xs text-slate-400">XP Global: <span id="xp-global" class="text-white font-bold">0</span></p>
+            
+            <!-- HEADER DO PASSE -->
+            <div class="glass p-6 rounded-3xl border border-amber-500/20 mb-8 bg-gradient-to-b from-slate-800/80 to-slate-900/80 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl rounded-full -mr-10 -mt-10 pointer-events-none"></div>
+                
+                <div class="flex justify-between items-end mb-4 relative z-10">
+                    <div>
+                        <h2 class="text-2xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400 uppercase">GEGP Pass <span class="text-xs not-italic text-slate-500 ml-2 font-normal border border-slate-700 px-2 py-0.5 rounded-full" id="pass-month-display">Temporada Atual</span></h2>
+                        <p class="text-sm text-slate-400">Complete missões para ganhar XP e resgatar recompensas exclusivas.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-amber-500 font-bold uppercase tracking-widest mb-1">Nível Atual</div>
+                        <div class="text-4xl font-black text-white leading-none" id="pass-level-display">1</div>
+                    </div>
+                </div>
+
+                <!-- Barra de XP -->
+                <div class="relative z-10 mb-6">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1 font-mono">
+                        <span id="pass-xp-display">0 XP</span>
+                        <span id="pass-next-xp-display">1000 XP</span>
+                    </div>
+                    <div class="w-full h-4 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                        <div id="pass-progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-orange-600 w-0 shadow-[0_0_15px_rgba(245,158,11,0.5)]"></div>
+                    </div>
+                </div>
+
+                <!-- Track de Recompensas (Scroll Horizontal) -->
+                <div class="relative z-10">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-3">Trilha de Recompensas</h3>
+                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="pass-track-container">
+                        <!-- Gerado via JS -->
+                    </div>
                 </div>
             </div>
-            <div id="pass-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- JS preenche aqui -->
+
+            <!-- GRID DE MISSÕES -->
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-list-check text-indigo-400"></i> Mural de Missões</h3>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Reseta em:</p>
+                    <p id="reset-timer" class="text-indigo-400 font-mono text-xs">00:00:00</p>
+                </div>
+            </div>
+
+            <!-- Filtros de Missão -->
+            <div class="flex gap-2 mb-4">
+                <button onclick="filterMissions('all')" class="px-3 py-1 bg-slate-800 rounded-full text-xs font-bold hover:bg-slate-700 transition-colors border border-slate-700">Tudo</button>
+                <button onclick="filterMissions('daily')" class="px-3 py-1 bg-indigo-900/30 text-indigo-300 rounded-full text-xs font-bold hover:bg-indigo-900/50 transition-colors border border-indigo-500/30">Diárias</button>
+                <button onclick="filterMissions('season')" class="px-3 py-1 bg-amber-900/30 text-amber-300 rounded-full text-xs font-bold hover:bg-amber-900/50 transition-colors border border-amber-500/30">Temporada</button>
+            </div>
+
+            <div id="mission-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Gerado via JS -->
             </div>
         </div>
 
-        <!-- SYSTEM TAB -->
+        <!-- SYSTEM -->
         <div id="system" class="tab-content text-center">
-            <div class="glass p-10 rounded-3xl max-w-xl mx-auto">
-                <i class="fa-solid fa-floppy-disk text-5xl text-indigo-500 mb-6"></i>
-                <h2 class="text-2xl font-bold mb-2">Save Único (.json)</h2>
-                <p class="text-sm text-slate-400 mb-8">Este arquivo contém o progresso de TODOS os jogos e sistemas (Idle, Card, Lab, Banco, Passe). Guarde-o com segurança.</p>
+            <div class="glass p-10 rounded-3xl max-w-xl mx-auto border border-indigo-500/20">
+                <div class="w-20 h-20 bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-400 text-3xl">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Backup Global (.json)</h2>
+                <p class="text-sm text-slate-400 mb-8">Este arquivo contém todo o seu império (Jogos, Cofre, Passe e Missões).</p>
                 
                 <div class="grid grid-cols-1 gap-4">
-                    <button onclick="Universe.exportSave()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center justify-center gap-3">
-                        <i class="fa-solid fa-download"></i> BAIXAR TUDO
+                    <button onclick="Universe.exportSave()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20 transition-transform active:scale-95">
+                        <i class="fa-solid fa-download"></i> BAIXAR SAVE UNIFICADO
                     </button>
                     
                     <div class="relative group">
-                        <input type="file" onchange="Universe.importSave(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div class="w-full py-4 bg-slate-700 group-hover:bg-slate-600 text-white font-bold rounded-xl flex items-center justify-center gap-3 border border-slate-600">
+                        <input type="file" onchange="Universe.importSave(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="w-full py-4 bg-slate-800 group-hover:bg-slate-700 text-slate-300 font-bold rounded-xl flex items-center justify-center gap-3 border border-slate-700 transition-colors">
                             <i class="fa-solid fa-upload"></i> CARREGAR BACKUP
                         </div>
                     </div>
 
-                    <button onclick="if(confirm('Apagar TUDO?')) Universe.Control.resetAll()" class="mt-4 text-red-500 text-xs font-bold hover:text-red-400 uppercase">
-                        Resetar Fábrica
-                    </button>
+                    <div class="mt-8 pt-8 border-t border-slate-700/50">
+                        <p class="text-xs text-red-400/70 mb-2 uppercase font-bold">Zona de Perigo</p>
+                        <button onclick="Universe.Control.promptReset()" class="text-red-500 text-xs font-bold hover:text-red-400 bg-red-950/30 px-4 py-2 rounded hover:bg-red-950/50 transition-colors">
+                            APAGAR TODO O PROGRESSO
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Script Principal -->
-    <script src="/js/Hub.js"></script>
-    
-    <!-- Lógica Simples da Tab -->
     <script>
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+    /* GEGP UNIVERSE CORE v6.0 */
+    
+    // --- UI HELPERS (Toast Notification) ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
         
-        function executeBank() {
-            const from = document.getElementById('bank-from').value;
-            const to = document.getElementById('bank-to').value;
-            const qtd = document.getElementById('bank-amount').value;
-            Universe.Bank.convert(from, to, qtd);
+        let icon = type === 'success' ? '<i class="fa-solid fa-check-circle text-emerald-400 text-xl"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-xl"></i>';
+        
+        toast.innerHTML = `
+            ${icon}
+            <div>
+                <h4 class="font-bold text-sm text-white">${type === 'success' ? 'Sucesso' : 'Erro'}</h4>
+                <p class="text-xs text-slate-300">${message}</p>
+            </div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Remove after 3s
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    const Universe = {
+        KEYS: {
+            IDLE: 'idlegame_ovelha_gegp_fixed',
+            CARD: 'gegp_v3_bal',
+            LAB: 'lab_suzana_mob_v1',
+            SYSTEM: 'gegp_universe_sys_v6' // Updated key for v6
+        },
+    
+        RATES: {
+            IDLE: 100,      // 1 GEGP+ = 100 Univ
+            CARD: 5000,     // 1 Score = 5000 Univ
+            LAB: 10         // 1 Renome = 10 Univ
+        },
+    
+        // Estado Default
+        system: {
+            bank: { 
+                vault: 0, 
+                loan: { active: false, amount: 0, interest: 0.30 } 
+            },
+            control: { locked: false, pin: "0000", lastAllowance: 0 },
+            missions: { 
+                lastReset: 0,
+                completed: [] // IDs das missões completadas hoje
+            },
+            battlePass: {
+                level: 1,
+                xp: 0,
+                month: new Date().getMonth(), // Rastreia o mês atual (0-11)
+                claimedRewards: [] // Array de niveis já resgatados [1, 2...]
+            }
+        },
+    
+        gameData: {
+            idle: { gegp: 0 },
+            card: 0,
+            lab: { renome: 0 }
+        },
+    
+        // --- CONFIGURAÇÃO DE CONTEÚDO ---
+        
+        PassRewards: [
+            { level: 1, xpNeeded: 0, reward: 100, desc: "Kit Inicial" },
+            { level: 2, xpNeeded: 1000, reward: 500, desc: "Suprimento Básico" },
+            { level: 3, xpNeeded: 2500, reward: 1000, desc: "Bolsa de Universais" },
+            { level: 4, xpNeeded: 4500, reward: 2500, desc: "Caixa GEGP" },
+            { level: 5, xpNeeded: 7000, reward: 5000, desc: "Baú de Tesouro" },
+            { level: 6, xpNeeded: 10000, reward: 7500, desc: "Carga Preciosa" },
+            { level: 7, xpNeeded: 13500, reward: 10000, desc: "Mega Lote" },
+            { level: 8, xpNeeded: 17500, reward: 15000, desc: "Patrocínio GEGP" },
+            { level: 9, xpNeeded: 22000, reward: 25000, desc: "Investimento Anjo" },
+            { level: 10, xpNeeded: 27000, reward: 50000, desc: "Ovelha Dourada" }
+        ],
+
+        MissionsList: [
+            // Daily (Reset 24h)
+            { id: 'd1', title: 'Visitante Diário', desc: 'Acesse o Hub hoje', target: 1, type: 'login', xp: 100, reward: 50, tag: 'daily' },
+            { id: 'd2', title: 'Pequeno Poupador', desc: 'Tenha 200 GEGP+ no Idle', target: 200, type: 'idle_gegp', xp: 150, reward: 100, tag: 'daily' },
+            { id: 'd3', title: 'Jogador de Cartas', desc: 'Alcance 500 Score no Card', target: 500, type: 'card_score', xp: 150, reward: 100, tag: 'daily' },
+            
+            // Season (Reset Mensal)
+            { id: 's1', title: 'Magnata das Ovelhas', desc: 'Tenha 5.000 GEGP+ no Idle', target: 5000, type: 'idle_gegp', xp: 1000, reward: 1000, tag: 'season' },
+            { id: 's2', title: 'Mestre do Baralho', desc: 'Acumule 25.000 Score no Card', target: 25000, type: 'card_score', xp: 2000, reward: 2500, tag: 'season' },
+            { id: 's3', title: 'Cientista Renomado', desc: 'Tenha 100 Renome no Lab', target: 100, type: 'lab_renome', xp: 1500, reward: 1500, tag: 'season' },
+            { id: 's4', title: 'Cofre Cheio', desc: 'Tenha 100.000 Universais no Cofre', target: 100000, type: 'vault_bal', xp: 3000, reward: 5000, tag: 'season' },
+            { id: 's5', title: 'Investidor', desc: 'Faça um empréstimo e pague-o', target: 1, type: 'loan_repay', xp: 500, reward: 500, tag: 'season' } // Requer logica custom
+        ],
+    
+        // --- CORE ---
+        
+        init: function() {
+            this.loadAll();
+            this.checkResets();
+            this.updateUI();
+            
+            // Loop de Save/UI
+            setInterval(() => {
+                this.loadAll();
+                this.updateUI();
+            }, 5000);
+
+            // Timer visual
+            setInterval(() => this.updateTimer(), 1000);
+        },
+    
+        loadAll: function() {
+            // System
+            const savedSys = localStorage.getItem(this.KEYS.SYSTEM);
+            if(savedSys) {
+                const parsed = JSON.parse(savedSys);
+                // Deep merge para garantir que campos novos (como battlePass) existam
+                this.system = { 
+                    ...this.system, 
+                    ...parsed,
+                    battlePass: { ...this.system.battlePass, ...(parsed.battlePass || {}) }
+                };
+            }
+            // Games
+            try { this.gameData.idle = JSON.parse(localStorage.getItem(this.KEYS.IDLE)) || { gegp: 0 }; } catch { this.gameData.idle = { gegp: 0 }; }
+            this.gameData.card = Number(localStorage.getItem(this.KEYS.CARD)) || 0;
+            try { this.gameData.lab = JSON.parse(localStorage.getItem(this.KEYS.LAB)) || { renome: 0 }; } catch { this.gameData.lab = { renome: 0 }; }
+        },
+    
+        saveSystem: function() {
+            localStorage.setItem(this.KEYS.SYSTEM, JSON.stringify(this.system));
+            this.updateUI();
+        },
+
+        saveGame: function(gameKey, data) {
+            if(gameKey === 'IDLE') localStorage.setItem(this.KEYS.IDLE, JSON.stringify(data));
+            if(gameKey === 'CARD') localStorage.setItem(this.KEYS.CARD, data.toString());
+            if(gameKey === 'LAB') localStorage.setItem(this.KEYS.LAB, JSON.stringify(data));
+            // Reload local
+            this.loadAll();
+        },
+
+        checkResets: function() {
+            const now = new Date();
+            const nowTime = now.getTime();
+            const currentMonth = now.getMonth();
+
+            // 1. Reset Diário (Missões Diárias)
+            // Se lastReset foi há mais de 24h
+            if(nowTime - this.system.missions.lastReset > 86400000) {
+                // Filtra apenas missões da temporada para manter completas, remove diárias
+                const seasonCompleted = this.system.missions.completed.filter(id => {
+                    const mission = this.MissionsList.find(m => m.id === id);
+                    return mission && mission.tag === 'season';
+                });
+                this.system.missions.completed = seasonCompleted;
+                this.system.missions.lastReset = nowTime;
+                // Auto-completa missão de Login
+                // this.Missions.claim('d1'); // Opcional, força usuario a clicar
+                this.saveSystem();
+            }
+
+            // 2. Reset Mensal (Passe de Batalha & Missões de Temporada)
+            if(this.system.battlePass.month !== currentMonth) {
+                showToast("Nova Temporada Iniciada! Passe Resetado.", "success");
+                // Reseta Passe
+                this.system.battlePass.level = 1;
+                this.system.battlePass.xp = 0;
+                this.system.battlePass.claimedRewards = [];
+                this.system.battlePass.month = currentMonth;
+                // Reseta TODAS as missões (incluindo Season)
+                this.system.missions.completed = [];
+                this.saveSystem();
+            }
+        },
+
+        updateTimer: function() {
+            const el = document.getElementById('reset-timer');
+            if(!el) return;
+            const now = Date.now();
+            // Faltam X para 24h do ultimo reset
+            const nextReset = this.system.missions.lastReset + 86400000;
+            const diff = nextReset - now;
+            
+            if(diff < 0) {
+                el.innerText = "Disponível";
+            } else {
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                el.innerText = `${h}h ${m}m ${s}s`;
+            }
+        },
+    
+        // --- LOGICA DE NEGÓCIO ---
+
+        Bank: {
+            calcNetWorth: function() {
+                const idle = (Number(Universe.gameData.idle.gegp)||0) * Universe.RATES.IDLE;
+                const card = Universe.gameData.card * Universe.RATES.CARD;
+                const lab = (Number(Universe.gameData.lab.renome)||0) * Universe.RATES.LAB;
+                const vault = Universe.system.bank.vault;
+                return idle + card + lab + vault;
+            },
+            convert: function(from, to, amount) {
+                if(Universe.system.control.locked) return showToast("Sistema Bloqueado pelo Admin.", "error");
+                amount = Number(amount);
+                if(amount <= 0) return showToast("Valor inválido", "error");
+
+                let valueInUniv = 0;
+                
+                // Saída
+                if(from === 'IDLE') {
+                    if((Universe.gameData.idle.gegp || 0) < amount) return showToast("Saldo insuficiente no Idle", "error");
+                    const newData = { ...Universe.gameData.idle }; newData.gegp -= amount; Universe.saveGame('IDLE', newData);
+                    valueInUniv = amount * Universe.RATES.IDLE;
+                } else if(from === 'CARD') {
+                    if(Universe.gameData.card < amount) return showToast("Saldo insuficiente no Card", "error");
+                    Universe.saveGame('CARD', Universe.gameData.card - amount);
+                    valueInUniv = amount * Universe.RATES.CARD;
+                } else if(from === 'LAB') {
+                    const currentLabVal = Universe.gameData.lab.renome || 0; // Usando Renome como moeda
+                    if(currentLabVal < amount) return showToast("Renome insuficiente", "error");
+                    const newData = { ...Universe.gameData.lab }; newData.renome -= amount; Universe.saveGame('LAB', newData);
+                    valueInUniv = amount * Universe.RATES.LAB;
+                } else if(from === 'VAULT') {
+                    if(Universe.system.bank.vault < amount) return showToast("Cofre vazio", "error");
+                    Universe.system.bank.vault -= amount;
+                    valueInUniv = amount; // Taxa de 5% poderia ser aplicada aqui na saida real, mas simplifiquei para 1:1 interno
+                }
+
+                // Entrada
+                if(to === 'VAULT') {
+                    Universe.system.bank.vault += valueInUniv;
+                } else if(to === 'IDLE') {
+                    const qtd = valueInUniv / Universe.RATES.IDLE;
+                    const newData = { ...Universe.gameData.idle }; newData.gegp = (Number(newData.gegp)||0) + qtd; Universe.saveGame('IDLE', newData);
+                } else if(to === 'CARD') {
+                    const qtd = valueInUniv / Universe.RATES.CARD;
+                    Universe.saveGame('CARD', Universe.gameData.card + qtd);
+                } else if(to === 'LAB') {
+                    const qtd = valueInUniv / Universe.RATES.LAB;
+                    const newData = { ...Universe.gameData.lab }; newData.renome = (Number(newData.renome)||0) + qtd; Universe.saveGame('LAB', newData);
+                }
+
+                Universe.saveSystem();
+                showToast("Transação realizada!", "success");
+            },
+            takeLoan: function() {
+                if(Universe.system.bank.loan.active) return showToast("Pague a dívida atual primeiro!", "error");
+                const netWorth = this.calcNetWorth();
+                const limit = Math.floor(netWorth * 0.5);
+                if(limit < 100) return showToast("Patrimônio muito baixo.", "error");
+
+                if(confirm(`Pegar ${limit} Univ? Pagarás ${Math.floor(limit * 1.3)}.`)) {
+                    Universe.system.bank.vault += limit;
+                    Universe.system.bank.loan.active = true;
+                    Universe.system.bank.loan.amount = Math.floor(limit * 1.3);
+                    Universe.saveSystem();
+                    showToast(`Empréstimo de ${limit} recebido!`, "success");
+                }
+            },
+            payLoan: function() {
+                const debt = Universe.system.bank.loan.amount;
+                if(Universe.system.bank.vault >= debt) {
+                    Universe.system.bank.vault -= debt;
+                    Universe.system.bank.loan.active = false;
+                    Universe.system.bank.loan.amount = 0;
+                    Universe.Missions.registerSpecialEvent('loan_repay'); // Trigger mission
+                    Universe.saveSystem();
+                    showToast("Dívida quitada!", "success");
+                } else {
+                    showToast("Saldo insuficiente no Cofre.", "error");
+                }
+            }
+        },
+
+        Missions: {
+            claim: function(id) {
+                if(Universe.system.missions.completed.includes(id)) return;
+                const mission = Universe.MissionsList.find(m => m.id === id);
+                
+                // Validação
+                let currentVal = 0;
+                if(mission.type === 'login') currentVal = 1; // Always true if clicked
+                if(mission.type === 'idle_gegp') currentVal = Universe.gameData.idle.gegp || 0;
+                if(mission.type === 'card_score') currentVal = Universe.gameData.card;
+                if(mission.type === 'lab_renome') currentVal = Universe.gameData.lab.renome || 0;
+                if(mission.type === 'vault_bal') currentVal = Universe.system.bank.vault;
+                if(mission.type === 'loan_repay') currentVal = 0; // Trigger manual via registerSpecialEvent
+
+                if(currentVal >= mission.target || mission.type === 'login') {
+                    // Recompensas
+                    Universe.system.bank.vault += mission.reward;
+                    Universe.BattlePass.addXp(mission.xp);
+                    
+                    Universe.system.missions.completed.push(id);
+                    Universe.saveSystem();
+                    showToast(`+${mission.reward} Univ | +${mission.xp} XP`, "success");
+                } else {
+                    showToast(`Falta: ${Math.floor(currentVal)}/${mission.target}`, "error");
+                }
+            },
+            // Usado para missões que não são baseadas em saldo (ex: ações)
+            registerSpecialEvent: function(type) {
+                const missions = Universe.MissionsList.filter(m => m.type === type);
+                missions.forEach(m => {
+                    if(!Universe.system.missions.completed.includes(m.id)) {
+                        // Auto claim para eventos de ação
+                        Universe.system.bank.vault += m.reward;
+                        Universe.BattlePass.addXp(m.xp);
+                        Universe.system.missions.completed.push(m.id);
+                        Universe.saveSystem();
+                        showToast(`Missão Secreta: ${m.title} Completa!`, "success");
+                    }
+                });
+            }
+        },
+
+        BattlePass: {
+            addXp: function(amount) {
+                Universe.system.battlePass.xp += amount;
+                this.checkLevelUp();
+            },
+            checkLevelUp: function() {
+                const currentLvl = Universe.system.battlePass.level;
+                // Procura o proximo nivel na tabela
+                const nextLevelConfig = Universe.PassRewards.find(r => r.level === currentLvl + 1);
+                
+                if(nextLevelConfig && Universe.system.battlePass.xp >= nextLevelConfig.xpNeeded) {
+                    Universe.system.battlePass.level++;
+                    showToast(`Level UP! Passe Nível ${Universe.system.battlePass.level}`, "success");
+                    this.checkLevelUp(); // Recursivo caso ganhe mto XP
+                }
+            },
+            claimReward: function(level) {
+                if(Universe.system.battlePass.claimedRewards.includes(level)) return;
+                if(Universe.system.battlePass.level < level) return showToast("Nível insuficiente", "error");
+
+                const rewardConfig = Universe.PassRewards.find(r => r.level === level);
+                if(rewardConfig) {
+                    Universe.system.bank.vault += rewardConfig.reward;
+                    Universe.system.battlePass.claimedRewards.push(level);
+                    Universe.saveSystem();
+                    showToast(`Resgatado: ${rewardConfig.reward} Universais!`, "success");
+                }
+            }
+        },
+
+        Control: {
+            promptToggleLock: function() {
+                const pin = prompt("PIN Admin:");
+                if(pin === Universe.system.control.pin) {
+                    Universe.system.control.locked = !Universe.system.control.locked;
+                    Universe.saveSystem();
+                    showToast(Universe.system.control.locked ? "Sistema Travado" : "Sistema Liberado", "success");
+                } else showToast("PIN Incorreto", "error");
+            },
+            emergencyLock: function() {
+                Universe.system.control.locked = true;
+                Universe.saveSystem();
+                showToast("PANIC LOCK ATIVADO", "error");
+            },
+            promptReset: function() {
+                const pin = prompt("ATENÇÃO: APAGA TUDO. PIN:");
+                if(pin === Universe.system.control.pin) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            },
+            claimAllowance: function() {
+                if(Universe.system.control.locked) return showToast("Bloqueado", "error");
+                const now = Date.now();
+                if(now - Universe.system.control.lastAllowance >= 86400000) {
+                    Universe.system.bank.vault += 500;
+                    Universe.system.control.lastAllowance = now;
+                    Universe.saveSystem();
+                    showToast("Mesada: +500 Univ", "success");
+                } else showToast("Já resgatou hoje", "error");
+            }
+        },
+
+        // --- IMPORT/EXPORT ---
+        exportSave: function() {
+            this.loadAll();
+            const data = {
+                meta: { date: new Date(), version: "6.0" },
+                system: this.system,
+                games: {
+                    [this.KEYS.IDLE]: this.gameData.idle,
+                    [this.KEYS.CARD]: this.gameData.card,
+                    [this.KEYS.LAB]: this.gameData.lab
+                }
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `GEGP_Universe_v6_${Date.now()}.json`;
+            a.click();
+        },
+        importSave: function(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if(!json.system) throw new Error("Save inválido");
+                    localStorage.setItem(this.KEYS.SYSTEM, JSON.stringify(json.system));
+                    localStorage.setItem(this.KEYS.IDLE, JSON.stringify(json.games[this.KEYS.IDLE]));
+                    localStorage.setItem(this.KEYS.CARD, json.games[this.KEYS.CARD].toString());
+                    localStorage.setItem(this.KEYS.LAB, JSON.stringify(json.games[this.KEYS.LAB]));
+                    showToast("Dados Restaurados!", "success");
+                    setTimeout(() => location.reload(), 1000);
+                } catch(err) { showToast("Erro ao carregar", "error"); }
+            };
+            reader.readAsText(file);
+        },
+
+        // --- RENDER ---
+        updateUI: function() {
+            const txt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+            
+            // Basic
+            txt('disp-idle', Math.floor(this.gameData.idle.gegp||0));
+            txt('disp-card', this.gameData.card);
+            txt('disp-lab', this.gameData.lab.renome||0);
+            txt('disp-vault', this.system.bank.vault.toFixed(2));
+            
+            const netWorth = this.Bank.calcNetWorth();
+            txt('disp-networth', `Univ ${netWorth.toFixed(0)}`);
+            if(document.getElementById('bar-wealth')) {
+                const w = Math.min((netWorth/100000)*100, 100);
+                document.getElementById('bar-wealth').style.width = `${w}%`;
+            }
+
+            // Loan
+            const loan = this.system.bank.loan;
+            txt('loan-limit', Math.floor(netWorth * 0.5));
+            if(loan.active) {
+                document.getElementById('loan-offer-panel').classList.add('hidden');
+                document.getElementById('loan-active-panel').classList.remove('hidden');
+                txt('disp-loan-amount', loan.amount.toFixed(2));
+                txt('loan-status', "DÍVIDA ATIVA");
+            } else {
+                document.getElementById('loan-offer-panel').classList.remove('hidden');
+                document.getElementById('loan-active-panel').classList.add('hidden');
+                txt('loan-status', "Sem Dívidas");
+            }
+
+            // --- BATTLE PASS UI ---
+            const bp = this.system.battlePass;
+            const nextLvlConfig = this.PassRewards.find(r => r.level === bp.level + 1);
+            const currentLvlConfig = this.PassRewards.find(r => r.level === bp.level);
+            
+            txt('pass-level-display', bp.level);
+            txt('pass-xp-display', `${bp.xp} XP`);
+            txt('pass-next-xp-display', nextLvlConfig ? `${nextLvlConfig.xpNeeded} XP` : 'MAX');
+            
+            // Barra XP (baseada no XP do nivel atual até o proximo)
+            if(nextLvlConfig && currentLvlConfig) {
+                const range = nextLvlConfig.xpNeeded - currentLvlConfig.xpNeeded;
+                const progress = bp.xp - currentLvlConfig.xpNeeded;
+                const pct = Math.min((progress / range) * 100, 100);
+                document.getElementById('pass-progress-bar').style.width = `${pct}%`;
+            } else if (!nextLvlConfig) {
+                document.getElementById('pass-progress-bar').style.width = `100%`;
+            } else {
+                // Nivel 1
+                 const pct = Math.min((bp.xp / nextLvlConfig.xpNeeded) * 100, 100);
+                 document.getElementById('pass-progress-bar').style.width = `${pct}%`;
+            }
+
+            // Render Track
+            const track = document.getElementById('pass-track-container');
+            if(track) {
+                track.innerHTML = '';
+                this.PassRewards.forEach(r => {
+                    const isUnlocked = bp.level >= r.level;
+                    const isClaimed = bp.claimedRewards.includes(r.level);
+                    let statusClass = 'locked border-slate-700 bg-slate-800';
+                    let btnText = `<i class="fa-solid fa-lock text-slate-500"></i> Level ${r.level}`;
+                    let btnAction = '';
+
+                    if(isClaimed) {
+                        statusClass = 'claimed border-emerald-500/50 bg-emerald-900/20';
+                        btnText = '<i class="fa-solid fa-check"></i> Coletado';
+                    } else if(isUnlocked) {
+                        statusClass = 'unlocked border-amber-500 bg-amber-900/20 shadow-lg shadow-amber-500/20';
+                        btnText = 'RESGATAR';
+                        btnAction = `onclick="Universe.BattlePass.claimReward(${r.level})"`;
+                    }
+
+                    const html = `
+                        <div class="pass-card p-4 rounded-xl border ${statusClass} flex flex-col justify-between items-center text-center shrink-0 w-40 h-48 relative overflow-hidden group">
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
+                            <div class="z-10 w-full">
+                                <span class="text-[10px] font-bold uppercase tracking-widest ${isUnlocked ? 'text-amber-400' : 'text-slate-500'}">Nível ${r.level}</span>
+                                <div class="my-3 text-2xl ${isUnlocked ? 'text-white' : 'text-slate-600'}"><i class="fa-solid fa-box-open"></i></div>
+                                <p class="text-xs font-bold text-white leading-tight mb-1">${r.reward} Univ</p>
+                                <p class="text-[10px] text-slate-400 leading-tight">${r.desc}</p>
+                            </div>
+                            <button ${btnAction} class="z-10 w-full mt-2 py-1.5 rounded text-[10px] font-bold uppercase transition-all ${isUnlocked && !isClaimed ? 'bg-amber-500 text-black hover:bg-amber-400 animate-pulse' : 'bg-slate-700 text-slate-500 cursor-default'}">
+                                ${btnText}
+                            </button>
+                        </div>
+                    `;
+                    track.innerHTML += html;
+                });
+            }
+
+            // Render Missions
+            renderMissions();
+
+            // Badge Notification no Menu
+            const canClaimPass = this.PassRewards.some(r => bp.level >= r.level && !bp.claimedRewards.includes(r.level));
+            const badge = document.getElementById('nav-pass-badge');
+            if(badge) badge.style.display = canClaimPass ? 'block' : 'none';
         }
+    };
+
+    // --- FILTRO DE MISSÕES ---
+    let currentFilter = 'all';
+    function filterMissions(type) {
+        currentFilter = type;
+        renderMissions();
+    }
+
+    function renderMissions() {
+        const grid = document.getElementById('mission-grid');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        let list = Universe.MissionsList;
+        if(currentFilter !== 'all') {
+            list = list.filter(m => m.tag === currentFilter);
+        }
+
+        list.forEach(m => {
+            const isDone = Universe.system.missions.completed.includes(m.id);
+            // Calc Progress
+            let current = 0;
+            if(m.type === 'login') current = isDone ? 1 : 0;
+            if(m.type === 'idle_gegp') current = Universe.gameData.idle.gegp || 0;
+            if(m.type === 'card_score') current = Universe.gameData.card;
+            if(m.type === 'lab_renome') current = Universe.gameData.lab.renome || 0;
+            if(m.type === 'vault_bal') current = Universe.system.bank.vault;
+            
+            const percent = Math.min((current / m.target) * 100, 100);
+
+            const tagColor = m.tag === 'daily' ? 'text-indigo-400 bg-indigo-900/30' : 'text-amber-400 bg-amber-900/30';
+            const tagLabel = m.tag === 'daily' ? 'Diária' : 'Temporada';
+
+            const html = `
+                <div class="glass p-4 rounded-xl border ${isDone ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700'} relative group hover:border-slate-500 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded mb-1 inline-block ${tagColor}">${tagLabel}</span>
+                            <h4 class="font-bold text-sm ${isDone ? 'text-emerald-400' : 'text-white'}">${m.title}</h4>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-xs font-bold text-amber-400">+${m.xp} XP</span>
+                            <span class="block text-[10px] text-emerald-400">+${m.reward} Univ</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3 h-8 overflow-hidden">${m.desc}</p>
+                    
+                    <div class="mb-3">
+                        <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                            <span>Progresso</span>
+                            <span>${isDone ? 'COMPLETO' : `${m.type === 'login' ? '-' : Math.floor(current)}/${m.target}`}</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill ${isDone ? 'bg-emerald-500' : (m.tag === 'season' ? 'bg-amber-500' : 'bg-indigo-500')}" style="width: ${isDone ? 100 : percent}%"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="Universe.Missions.claim('${m.id}')" ${isDone ? 'disabled' : ''} class="w-full py-2 rounded-lg text-xs font-bold transition-all ${isDone ? 'bg-transparent text-emerald-500 border border-emerald-500/30 cursor-default' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-lg'}">
+                        ${isDone ? '<i class="fa-solid fa-check"></i> RESGATADO' : 'RESGATAR'}
+                    </button>
+                </div>
+            `;
+            grid.innerHTML += html;
+        });
+    }
+
+    function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        Universe.updateUI();
+    }
+    
+    function executeBank() {
+        const from = document.getElementById('bank-from').value;
+        const to = document.getElementById('bank-to').value;
+        const amount = document.getElementById('bank-amount').value;
+        Universe.Bank.convert(from, to, amount);
+    }
+
+    // Month display
+    const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    document.getElementById('pass-month-display').innerText = `Temporada ${months[new Date().getMonth()]}`;
+
+    window.addEventListener('load', () => Universe.init());
     </script>
 </body>
-</html>
+    </html>
