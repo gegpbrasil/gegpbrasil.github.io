@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidade Ananás - GEGP Arena</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #fdf6e3;
+            --pattern-color: #fcd34d;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+        }
+
+        body.vip-mode {
+            --bg-color: #0f172a;
+            --pattern-color: #fbbf24;
+            --text-color: #f1f5f9;
+            --card-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--pattern-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-color);
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        .theme-card {
+            background-color: var(--card-bg);
+            transition: background-color 0.5s;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        .slide-up { animation: slideUp 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Coin Animation */
+        @keyframes spinCoin { 0% { transform: rotateY(0); } 100% { transform: rotateY(720deg); } }
+        .animate-spin-coin { animation: spinCoin 1s ease-out forwards; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+
+        .btn-game:active { transform: scale(0.98); }
+        .locked { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden transition-colors duration-500">
+
+    <!-- LOGIN SCREEN -->
+    <section id="screen-login" class="fixed inset-0 z-50 bg-yellow-500 flex flex-col items-center justify-center p-6 text-white fade-in">
+        <div class="text-center mb-8">
+            <i class="fa-solid fa-pineapple text-6xl mb-4 animate-bounce"></i>
+            <h1 class="text-3xl font-bold">Cidade Ananás</h1>
+            <p class="text-yellow-100">GEGP Arena</p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl w-full max-w-sm border border-white/20 shadow-xl">
+            <label class="block text-sm font-bold mb-2">Nome do Jogador:</label>
+            <input type="text" id="login-name" class="w-full p-3 rounded-lg text-slate-800 font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300 placeholder-gray-400" placeholder="Ex: Gabriel">
+            <button onclick="playerLogin()" class="w-full mt-4 bg-white text-yellow-600 font-bold py-3 rounded-lg shadow-lg hover:bg-yellow-50 transition active:scale-95">ENTRAR</button>
+        </div>
+    </section>
+
+    <!-- HEADER -->
+    <header id="app-header" class="hidden bg-yellow-500 text-white shadow-lg z-10 transition-colors duration-500">
+        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-city text-2xl"></i>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Cidade Ananás</h1>
+                    <div class="flex items-center gap-2">
+                        <p class="text-xs text-yellow-100">Olá, <span id="hud-name">User</span></p>
+                        <span id="vip-badge" class="hidden text-[10px] bg-black text-yellow-400 px-1 rounded border border-yellow-400 font-bold">VIP</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs font-bold bg-yellow-600 px-2 py-0.5 rounded-full inline-block mb-1">Classe <span id="hud-class">D</span></div>
+                <div class="flex items-center justify-end gap-3 text-sm">
+                    <div class="flex items-center gap-1"><i class="fa-solid fa-trophy text-yellow-200"></i> <span id="hud-trophies" class="font-bold">0</span></div>
+                    <div class="flex items-center gap-1 text-purple-100"><i class="fa-solid fa-gem"></i> <span id="hud-gegp" class="font-bold">0</span></div>
+                </div>
+            </div>
+        </div>
+        <!-- Active Boost Indicator -->
+        <div id="boost-indicator" class="hidden bg-purple-600 text-white text-xs text-center py-1 font-bold">
+            ⚡ ENERGÉTICO ATIVO: <span id="boost-count">0</span> Vitórias Restantes (2x Troféus)
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="app-container" class="hidden flex-1 overflow-y-auto p-4 pb-24 max-w-md mx-auto w-full relative">
+        
+        <!-- DASHBOARD -->
+        <section id="screen-dashboard" class="fade-in space-y-5">
+            
+            <!-- Exchange & Shop Access -->
+            <div class="theme-card rounded-xl p-4 shadow-sm border border-gray-200/50 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-purple-600">Loja GEGP+</h3>
+                    <p class="text-xs opacity-70">Gaste seus pontos aqui!</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exchangeCurrency()" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold active:scale-95">
+                        30🏆 <i class="fa-solid fa-arrow-right"></i> 1💎
+                    </button>
+                    <button onclick="openShop()" class="bg-purple-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow active:scale-95">
+                        <i class="fa-solid fa-store mr-1"></i> ABRIR LOJA
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="theme-card rounded-xl p-4 shadow-sm border border-gray-200/50">
+                <div class="flex justify-between text-xs font-bold opacity-60 mb-1">
+                    <span>Progresso de Classe</span>
+                    <span id="xp-text">0/50</span>
+                </div>
+                <div class="bg-gray-200 rounded-full h-2.5 w-full overflow-hidden">
+                    <div id="xp-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Games Grid -->
+            <div>
+                <h3 class="font-bold opacity-80 mb-3 flex items-center gap-2"><i class="fa-solid fa-gamepad"></i> Arena</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <!-- Game 1 -->
+                    <div onclick="startGame('jokenpo')" class="btn-game theme-card p-4 rounded-xl shadow-sm border-l-4 border-yellow-500 flex items-center justify-between cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600"><i class="fa-regular fa-hand-scissors"></i></div>
+                            <div><h4 class="font-bold">JoKenPo</h4><p class="text-xs opacity-60">Classe D</p></div>
+                        </div>
+                        <i class="fa-solid fa-play opacity-30"></i>
+                    </div>
+                    <!-- Game 2 -->
+                    <div onclick="startGame('caracoroa')" class="btn-game theme-card p-4 rounded-xl shadow-sm border-l-4 border-yellow-500 flex items-center justify-between cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600"><i class="fa-solid fa-coins"></i></div>
+                            <div><h4 class="font-bold">Cara ou Coroa</h4><p class="text-xs opacity-60">Classe D</p></div>
+                        </div>
+                        <i class="fa-solid fa-play opacity-30"></i>
+                    </div>
+                    <!-- Game 3 (Locked) -->
+                    <div id="card-math" onclick="startGame('math')" class="btn-game theme-card p-4 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center justify-between cursor-pointer relative overflow-hidden">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fa-solid fa-calculator"></i></div>
+                            <div><h4 class="font-bold">Matemática</h4><p class="text-xs opacity-60">Classe C</p></div>
+                        </div>
+                        <i class="fa-solid fa-lock opacity-30 lock-icon"></i>
+                    </div>
+                    <!-- Game 4 (Locked) -->
+                    <div id="card-parimpar" onclick="startGame('parimpar')" class="btn-game theme-card p-4 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center justify-between cursor-pointer relative overflow-hidden">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fa-solid fa-divide"></i></div>
+                            <div><h4 class="font-bold">Par ou Ímpar</h4><p class="text-xs opacity-60">Classe C</p></div>
+                        </div>
+                        <i class="fa-solid fa-lock opacity-30 lock-icon"></i>
+                    </div>
+                    <!-- Game 5 (Locked) -->
+                    <div id="card-doisouum" onclick="startGame('doisouum')" class="btn-game theme-card p-4 rounded-xl shadow-sm border-l-4 border-red-500 flex items-center justify-between cursor-pointer relative overflow-hidden">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fa-solid fa-users"></i></div>
+                            <div><h4 class="font-bold">Dois ou Um</h4><p class="text-xs opacity-60">Classe B</p></div>
+                        </div>
+                        <i class="fa-solid fa-lock opacity-30 lock-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SHOP SCREEN -->
+        <section id="screen-shop" class="hidden fade-in space-y-6">
+            <div class="flex items-center gap-3 mb-4">
+                <button onclick="closeShop()" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 text-black">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="text-xl font-bold">Loja GEGP+</h2>
+            </div>
+
+            <!-- Item 1: Multiplier -->
+            <div class="theme-card p-4 rounded-xl shadow-md border-l-4 border-purple-500 flex flex-col gap-2">
+                <div class="flex justify-between items-start">
+                    <div class="flex gap-3">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 text-xl"><i class="fa-solid fa-bolt"></i></div>
+                        <div>
+                            <h3 class="font-bold">Energético de Ananás</h3>
+                            <p class="text-xs opacity-70">Dobro de troféus por 5 vitórias.</p>
+                        </div>
+                    </div>
+                    <span class="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">1 💎</span>
+                </div>
+                <button onclick="buyItem('boost')" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold text-sm mt-2 active:scale-95 transition">COMPRAR</button>
+            </div>
+
+            <!-- Item 2: Mystery Box -->
+            <div class="theme-card p-4 rounded-xl shadow-md border-l-4 border-green-500 flex flex-col gap-2">
+                <div class="flex justify-between items-start">
+                    <div class="flex gap-3">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 text-xl"><i class="fa-solid fa-box-open"></i></div>
+                        <div>
+                            <h3 class="font-bold">Caixa Misteriosa</h3>
+                            <p class="text-xs opacity-70">Ganhe entre 40 e 100 Troféus!</p>
+                        </div>
+                    </div>
+                    <span class="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">2 💎</span>
+                </div>
+                <button onclick="buyItem('box')" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-sm mt-2 active:scale-95 transition">COMPRAR</button>
+            </div>
+
+            <!-- Item 3: VIP Skin -->
+            <div class="theme-card p-4 rounded-xl shadow-md border-l-4 border-yellow-500 flex flex-col gap-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white border-none">
+                <div class="flex justify-between items-start">
+                    <div class="flex gap-3">
+                        <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-400 text-xl"><i class="fa-solid fa-crown"></i></div>
+                        <div>
+                            <h3 class="font-bold text-yellow-400">Cartão Black VIP</h3>
+                            <p class="text-xs text-gray-300">Modo Escuro e Dourado.</p>
+                        </div>
+                    </div>
+                    <span class="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">15 💎</span>
+                </div>
+                <button onclick="buyItem('vip')" class="w-full py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg font-bold text-sm mt-2 active:scale-95 transition">TORNAR-SE VIP</button>
+            </div>
+        </section>
+
+        <!-- GAME ARENA -->
+        <section id="screen-game" class="hidden h-full flex flex-col fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="goHome()" class="text-gray-500 hover:text-gray-800 font-bold text-sm bg-gray-200 px-3 py-1 rounded-full"><i class="fa-solid fa-arrow-left"></i> SAIR</button>
+                <span id="game-title" class="font-bold uppercase tracking-wider text-sm opacity-60">JOGO</span>
+            </div>
+            <div id="game-area" class="theme-card flex-1 rounded-2xl shadow-inner p-4 flex flex-col items-center justify-center relative overflow-hidden border border-gray-200/50"></div>
+            <div id="game-log" class="mt-4 text-center text-sm font-medium opacity-80 h-10 flex items-center justify-center">Escolha sua jogada!</div>
+        </section>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-xl z-50 transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none flex items-center gap-2 w-max border border-gray-700">
+        <i class="fa-solid fa-info-circle text-yellow-400"></i>
+        <span id="toast-msg">Notificação</span>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const CLASSES = [
+            { id: 'D', name: 'Iniciante', min: 0 },
+            { id: 'C', name: 'Amador', min: 50 },
+            { id: 'B', name: 'Profissional', min: 150 },
+            { id: 'A', name: 'Mestre', min: 300 },
+            { id: 'S', name: 'Lenda', min: 1000 }
+        ];
+
+        let player = {
+            name: '',
+            trophies: 0,
+            gegp: 0,
+            boosts: 0, // Number of games with 2x multiplier left
+            isVip: false
+        };
+
+        // --- INIT & SAVING ---
+        function init() {
+            const saved = localStorage.getItem('gegp_ananas_v3');
+            if(saved) {
+                player = JSON.parse(saved);
+                if(player.name) showDashboard();
+                else document.getElementById('screen-login').classList.remove('hidden');
+            } else {
+                document.getElementById('screen-login').classList.remove('hidden');
+            }
+            applyVip();
+        }
+
+        function playerLogin() {
+            const name = document.getElementById('login-name').value.trim();
+            if(name.length < 2) return alert("Nome inválido!");
+            player.name = name;
+            save();
+            showDashboard();
+        }
+
+        function save() {
+            localStorage.setItem('gegp_ananas_v3', JSON.stringify(player));
+            updateUI();
+        }
+
+        // --- UI & NAVIGATION ---
+        function updateUI() {
+            document.getElementById('hud-name').innerText = player.name;
+            document.getElementById('hud-trophies').innerText = player.trophies;
+            document.getElementById('hud-gegp').innerText = player.gegp;
+            
+            // Boost Indicator
+            const boostEl = document.getElementById('boost-indicator');
+            if(player.boosts > 0) {
+                boostEl.classList.remove('hidden');
+                document.getElementById('boost-count').innerText = player.boosts;
+            } else {
+                boostEl.classList.add('hidden');
+            }
+
+            // VIP Badge
+            if(player.isVip) document.getElementById('vip-badge').classList.remove('hidden');
+
+            // Class Progress
+            let current = CLASSES[0];
+            for(let c of CLASSES) if(player.trophies >= c.min) current = c;
+            
+            let next = CLASSES[CLASSES.indexOf(current)+1];
+            document.getElementById('hud-class').innerText = current.id;
+            
+            const xpBar = document.getElementById('xp-bar');
+            const xpText = document.getElementById('xp-text');
+            
+            if(next) {
+                const pct = Math.min(100, Math.max(0, ((player.trophies - current.min) / (next.min - current.min)) * 100));
+                xpBar.style.width = `${pct}%`;
+                xpText.innerText = `${player.trophies}/${next.min}`;
+            } else {
+                xpBar.style.width = '100%';
+                xpText.innerText = 'MAX';
+            }
+
+            // Lock Games
+            toggleLock(['card-math', 'card-parimpar'], current.id === 'D');
+            toggleLock(['card-doisouum'], (current.id === 'D' || current.id === 'C'));
+        }
+
+        function toggleLock(ids, isLocked) {
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(isLocked) {
+                    el.classList.add('locked');
+                    el.querySelector('.lock-icon').classList.replace('fa-play', 'fa-lock');
+                } else {
+                    el.classList.remove('locked');
+                    el.querySelector('.lock-icon').classList.replace('fa-lock', 'fa-play');
+                }
+            });
+        }
+
+        function showDashboard() {
+            hideAll();
+            document.getElementById('app-header').classList.remove('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('screen-dashboard').classList.remove('hidden');
+            updateUI();
+        }
+
+        function hideAll() {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-dashboard').classList.add('hidden');
+            document.getElementById('screen-shop').classList.add('hidden');
+            document.getElementById('screen-game').classList.add('hidden');
+        }
+
+        function goHome() {
+            hideAll();
+            document.getElementById('screen-dashboard').classList.remove('hidden');
+            updateUI();
+        }
+
+        // --- SHOP & ECONOMY ---
+        function exchangeCurrency() {
+            if(player.trophies >= 30) {
+                player.trophies -= 30;
+                player.gegp += 1;
+                save();
+                showToast('+1 Diamante GEGP+');
+                confetti({ particleCount: 50, origin: {y:0.6} });
+            } else {
+                showToast('Precisa de 30 Troféus');
+            }
+        }
+
+        function openShop() {
+            hideAll();
+            document.getElementById('screen-shop').classList.remove('hidden');
+        }
+
+        function closeShop() {
+            goHome();
+        }
+
+        function buyItem(item) {
+            if(item === 'boost') {
+                if(player.gegp >= 1) {
+                    player.gegp -= 1;
+                    player.boosts += 5;
+                    save();
+                    showToast('⚡ Energético Ativado (5 Jogos)');
+                } else showToast('Falta GEGP+ (Preço: 1)');
+            }
+            else if(item === 'box') {
+                if(player.gegp >= 2) {
+                    player.gegp -= 2;
+                    const prize = Math.floor(Math.random() * (100 - 40 + 1)) + 40;
+                    player.trophies += prize;
+                    save();
+                    showToast(`🎁 Você ganhou ${prize} Troféus!`);
+                    confetti({ spread: 100, particleCount: 100 });
+                } else showToast('Falta GEGP+ (Preço: 2)');
+            }
+            else if(item === 'vip') {
+                if(player.isVip) { showToast('Você já é VIP!'); return; }
+                if(player.gegp >= 15) {
+                    player.gegp -= 15;
+                    player.isVip = true;
+                    applyVip();
+                    save();
+                    showToast('💳 Bem-vindo ao Clube VIP!');
+                    confetti({ colors: ['#FFD700', '#000000'] });
+                } else showToast('Falta GEGP+ (Preço: 15)');
+            }
+        }
+
+        function applyVip() {
+            if(player.isVip) {
+                document.body.classList.add('vip-mode');
+                document.getElementById('app-header').classList.replace('bg-yellow-500', 'bg-gray-900');
+                document.getElementById('app-header').classList.replace('text-white', 'text-yellow-400');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0)';
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, -20px)'; }, 2500);
+        }
+
+        // --- GAMES ENGINE ---
+        function startGame(type) {
+            const cls = document.getElementById('hud-class').innerText;
+            if ((type === 'math' || type === 'parimpar') && cls === 'D') return showToast('Bloqueado: Requer Classe C');
+            if (type === 'doisouum' && (cls === 'D' || cls === 'C')) return showToast('Bloqueado: Requer Classe B');
+
+            hideAll();
+            document.getElementById('screen-game').classList.remove('hidden');
+            const area = document.getElementById('game-area');
+            const title = document.getElementById('game-title');
+            area.innerHTML = '';
+            document.getElementById('game-log').innerText = "Prepare-se...";
+
+            if(type === 'jokenpo') setupJoKenPo(area, title);
+            if(type === 'caracoroa') setupHeadsTails(area, title);
+            if(type === 'math') setupMathGame(area, title);
+            if(type === 'parimpar') setupParImpar(area, title);
+            if(type === 'doisouum') setupDoisOuUm(area, title);
+        }
+
+        function processResult(won, baseReward, msg) {
+            const log = document.getElementById('game-log');
+            if(won) {
+                let reward = baseReward;
+                let extraMsg = '';
+                
+                // Boost Logic
+                if(player.boosts > 0) {
+                    reward *= 2;
+                    player.boosts--;
+                    extraMsg = ' (⚡2x)';
+                }
+
+                player.trophies += reward;
+                
+                // Random GEGP Drop (5% chance)
+                if(Math.random() < 0.05) {
+                    player.gegp++;
+                    extraMsg += ' +💎';
+                }
+
+                save();
+                log.innerHTML = `<span class="text-green-600 font-bold">${msg} (+${reward}${extraMsg})</span>`;
+                confetti({ particleCount: 60, spread: 60, origin: {y:0.7} });
+            } else if(msg.includes('Empate')) {
+                log.innerHTML = `<span class="text-yellow-600 font-bold">${msg}</span>`;
+            } else {
+                log.innerHTML = `<span class="text-red-500 font-bold">${msg}</span>`;
+            }
+        }
+
+        // --- MINI GAMES ---
+        function setupJoKenPo(area, title) {
+            title.innerText = "JoKenPo";
+            area.innerHTML = `<div class="text-center w-full"><div id="bot" class="text-5xl mb-6">🤖</div><div class="flex justify-center gap-4"><button onclick="runJKP('r')" class="text-3xl p-4 bg-gray-100 rounded-xl shadow hover:bg-yellow-100">🪨</button><button onclick="runJKP('p')" class="text-3xl p-4 bg-gray-100 rounded-xl shadow hover:bg-yellow-100">📄</button><button onclick="runJKP('s')" class="text-3xl p-4 bg-gray-100 rounded-xl shadow hover:bg-yellow-100">✂️</button></div></div>`;
+        }
+        function runJKP(p) {
+            const bot = ['r','p','s'][Math.floor(Math.random()*3)];
+            const map = {r:'🪨', p:'📄', s:'✂️'};
+            document.getElementById('bot').innerText = map[bot];
+            if(p==bot) processResult(false,0,"Empate!");
+            else if((p=='r'&&bot=='s')||(p=='p'&&bot=='r')||(p=='s'&&bot=='p')) processResult(true,3,"Vitória!");
+            else processResult(false,0,"Derrota!");
+        }
+
+        function setupHeadsTails(area, title) {
+            title.innerText = "Cara ou Coroa";
+            area.innerHTML = `<div class="flex flex-col items-center w-full"><div id="coin" class="w-24 h-24 rounded-full bg-yellow-400 border-4 border-yellow-600 flex items-center justify-center text-4xl text-yellow-800 shadow-lg mb-8"><i class="fa-solid fa-question"></i></div><div class="flex gap-4 w-full px-4"><button onclick="runHT('cara')" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold">CARA</button><button onclick="runHT('coroa')" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold">COROA</button></div></div>`;
+        }
+        function runHT(choice) {
+            const coin = document.getElementById('coin');
+            coin.classList.remove('animate-spin-coin');
+            void coin.offsetWidth; coin.classList.add('animate-spin-coin');
+            setTimeout(()=>{
+                const res = Math.random()<0.5?'cara':'coroa';
+                coin.innerHTML = res=='cara'?'<i class="fa-solid fa-user"></i>':'<i class="fa-solid fa-crown"></i>';
+                processResult(choice==res, 3, choice==res?"Acertou!":"Errou!");
+            },1000);
+        }
+
+        function setupMathGame(area, title) {
+            title.innerText = "Matemática";
+            const n1=Math.floor(Math.random()*15)+1, n2=Math.floor(Math.random()*10)+1;
+            window.ans = n1+n2;
+            area.innerHTML = `<div class="text-center w-full"><div class="bg-gray-800 text-white rounded p-4 mb-4 text-2xl font-mono">${n1} + ${n2} = ?</div><input type="number" id="math-in" class="w-full p-3 border rounded mb-2 text-center text-xl font-bold"><button onclick="checkMath()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">ENVIAR</button></div>`;
+        }
+        function checkMath() {
+            if(parseInt(document.getElementById('math-in').value) === window.ans) {
+                processResult(true, 4, "Correto!");
+                setTimeout(()=>setupMathGame(document.getElementById('game-area'),document.getElementById('game-title')),1000);
+            } else processResult(false, 0, "Errado!");
+        }
+
+        function setupParImpar(area, title) {
+            title.innerText = "Par ou Ímpar";
+            area.innerHTML = `<div class="w-full max-w-xs flex flex-col gap-2"><div class="flex gap-2"><button id="pi-p" onclick="setP('par')" class="flex-1 py-2 border-2 border-blue-500 rounded font-bold text-blue-500">PAR</button><button id="pi-i" onclick="setP('impar')" class="flex-1 py-2 border-2 border-blue-500 rounded font-bold text-blue-500">ÍMPAR</button></div><input type="number" id="pi-v" class="p-2 border rounded text-center" placeholder="Seu nº"><button onclick="runPI()" class="bg-yellow-500 text-white font-bold py-2 rounded mt-2">JOGAR</button></div>`;
+            window.pick=null;
+        }
+        function setP(p){ window.pick=p; document.getElementById('pi-p').className=p=='par'?'flex-1 py-2 bg-blue-500 text-white rounded font-bold':'flex-1 py-2 border-2 border-blue-500 rounded font-bold text-blue-500'; document.getElementById('pi-i').className=p=='impar'?'flex-1 py-2 bg-blue-500 text-white rounded font-bold':'flex-1 py-2 border-2 border-blue-500 rounded font-bold text-blue-500'; }
+        function runPI(){
+            if(!window.pick) return showToast('Escolha Par/Ímpar');
+            const val=parseInt(document.getElementById('pi-v').value);
+            if(isNaN(val)||val<0||val>10) return showToast('Número inválido');
+            const bot=Math.floor(Math.random()*11), tot=val+bot, isP=tot%2===0, res=isP?'par':'impar';
+            processResult(res===window.pick, 5, `Bot(${bot}) + Vc(${val}) = ${tot} (${res.toUpperCase()})`);
+        }
+
+        function setupDoisOuUm(area, title) {
+            title.innerText = "Dois ou Um";
+            area.innerHTML = `<div class="text-center w-full"><div class="flex justify-between px-8 mb-6"><div>🤖<br><small>B1</small></div><div>🤖<br><small>B2</small></div></div><div class="flex gap-4 justify-center"><button onclick="runDOI(1)" class="w-16 h-16 bg-red-500 text-white text-2xl font-bold rounded shadow">1</button><button onclick="runDOI(2)" class="w-16 h-16 bg-red-500 text-white text-2xl font-bold rounded shadow">2</button></div></div>`;
+        }
+        function runDOI(p) {
+            const b1=Math.floor(Math.random()*2)+1, b2=Math.floor(Math.random()*2)+1;
+            if(p!==b1 && p!==b2) processResult(true, 8, `Você venceu! (B1:${b1}, B2:${b2})`);
+            else processResult(false, 0, `Perdeu! (B1:${b1}, B2:${b2})`);
+        }
+
+        init();
+    </script>
+</body>
+</html>
