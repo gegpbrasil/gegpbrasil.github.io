@@ -3,42 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ovelha Card Game | Heróis vs Vilões</title>
-    
-    <!-- Link do CSS externo -->
-    <link rel="stylesheet" href="/CSS/Ovelhacard.css">
+    <title>GEGP Card Game-Rework</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Tema Marco Congelante */
+            --ice-primary: #00f7ff;
+            --ice-dark: #001a2c;
+            --bg-deep: #00050a;
+            --gold-legacy: #ffaa00;
+            --glass: rgba(0, 20, 40, 0.95);
+            --border: 1px solid rgba(0, 247, 255, 0.3);
 
+            /* Raridades */
+            --common: #a0a0a0;   /* Cinza Gelo */
+            --rare: #0099ff;     /* Azul */
+            --epic: #bd00ff;     /* Roxo */
+            --legendary: #ffcc00;/* Dourado */
+            --exclusive: #ff0055;/* Vermelho GEGP */
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 0%, #002f4b 0%, var(--bg-deep) 80%);
+            color: #fff;
+            margin: 0; padding-bottom: 90px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Neve Caindo */
+        .snow-fx {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; opacity: 0.15; z-index: 1;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="1" fill="white"/></svg>') repeat;
+            animation: snowFall 25s linear infinite;
+        }
+        @keyframes snowFall { from {background-position: 0 0;} to {background-position: 100px 200px;} }
+
+        .container { max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
+
+        /* HEADER */
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: var(--glass);
+            backdrop-filter: blur(10px); border-bottom: var(--border);
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        .user-id { font-size: 0.9rem; letter-spacing: 1px; color: var(--ice-primary); font-weight: 800; }
+        .coin-badge {
+            background: rgba(0, 247, 255, 0.1); border: 1px solid var(--ice-primary);
+            color: var(--ice-primary); padding: 5px 15px; border-radius: 20px;
+            font-weight: bold; font-family: monospace; font-size: 1.1rem;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        /* SCREENS */
+        .screen { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+        h2 { margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; color: #fff; text-shadow: 0 0 15px var(--ice-primary); }
+        .sub-txt { color: #8ab; font-size: 0.8rem; margin-bottom: 25px; display: block; border-left: 2px solid var(--ice-primary); padding-left: 10px; }
+
+        /* GACHA CARD (3D) */
+        .gacha-stage { width: 220px; height: 340px; margin: 10px auto 30px; perspective: 1000px; }
+        .card-wrap { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-wrap.flipped { transform: rotateY(180deg); }
+
+        .c-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 18px; border: 2px solid rgba(0, 247, 255, 0.3);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #020b14; box-shadow: 0 0 30px rgba(0, 247, 255, 0.15);
+        }
+        .c-front { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.9)); }
+        .c-back { transform: rotateY(180deg); padding: 15px; text-align: center; position: relative; overflow: hidden; }
+        
+        /* Raridade Backgrounds no Verso */
+        .bg-common { background: linear-gradient(to bottom, #2c3e50, #000); }
+        
+        /* ACTION BUTTONS */
+        .btn-summon {
+            width: 100%; padding: 18px; border: none; border-radius: 12px;
+            background: linear-gradient(90deg, #002f4b, #00507a); border: 1px solid var(--ice-primary);
+            color: var(--ice-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; box-shadow: 0 0 20px rgba(0, 247, 255, 0.2); transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .btn-summon:active { transform: scale(0.98); }
+        .btn-summon:disabled { background: #111; border-color: #333; color: #555; box-shadow: none; cursor: not-allowed; }
+
+        .dl-btn {
+            display: inline-block; margin-top: 15px; text-decoration: none;
+            padding: 10px 25px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+            background: var(--ice-primary); color: #000; box-shadow: 0 0 10px var(--ice-primary);
+            transition: 0.3s;
+        }
+        .dl-btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* COLLECTION GRID */
+        .coll-header { 
+            border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px; 
+            color: #888; font-size: 0.8rem; letter-spacing: 1px; display: flex; justify-content: space-between;
+        }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .slot {
+            aspect-ratio: 2/3; background: #0a0a0a; border-radius: 10px; border: 1px solid #222;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0.6; position: relative; transition: 0.3s; padding: 10px; text-align: center;
+        }
+        .slot.owned { opacity: 1; border-color: var(--ice-primary); background: linear-gradient(to top, #00101a, #00283d); transform: scale(1); }
+        .slot.owned:active { transform: scale(0.95); }
+
+        /* Icones nas cartas */
+        .card-icon { font-size: 3rem; margin-bottom: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
+
+        /* SHOP */
+        .shop-sec-title { margin: 20px 0 10px; font-size: 0.9rem; color: #aaa; text-transform: uppercase; border-left: 3px solid var(--ice-primary); padding-left: 10px; }
+        .shop-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03); border: 1px solid #333;
+            padding: 12px; border-radius: 8px; margin-bottom: 8px;
+        }
+        .shop-buy-btn {
+            background: transparent; border: 1px solid #fff; color: #fff;
+            padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
+        }
+        .shop-buy-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        /* Cores de Raridade */
+        .r-common { border-color: var(--common); color: var(--common); }
+        
+        /* DAILY REWARD */
+        #dailyBox {
+            background: linear-gradient(45deg, #00334d, #001a2c); border: 1px solid var(--ice-primary);
+            padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none;
+            justify-content: space-between; align-items: center; animation: slideDown 0.5s;
+        }
+        @keyframes slideDown { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
+
+        /* NAV */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; max-width: 500px;
+            background: #020b14; border-top: 1px solid #333;
+            display: flex; justify-content: space-around; padding: 15px 0; z-index: 200;
+        }
+        .nav-icon { color: #555; font-size: 1.4rem; transition: 0.2s; cursor: pointer; }
+        .nav-icon.active { color: var(--ice-primary); transform: translateY(-5px); text-shadow: 0 0 15px var(--ice-primary); }
+        .nav-label { font-size: 0.6rem; margin-top: 2px; }
+
+        /* Coming Soon Placeholder */
+        .coming-soon {
+            text-align: center; padding: 20px; border: 1px dashed #444; border-radius: 10px; margin-top: 10px; color: #666; font-size: 0.8rem;
+        }
+
+    </style>
 </head>
 <body>
 
+<div class="snow-fx"></div>
+
 <div class="container">
-    <h1>Heróis vs Vilões</h1>
-    <p style="color: #aaa; margin-top: 0;">Coleção: O Teste de Lealdade</p>
-
-    <div class="stats">
-        <div class="stat-item" id="balanceDisplay">GEGP+ : 0</div>
-        <div class="stat-item" id="sessionDisplay">Sessão: 00:00:00</div>
+    
+    <!-- HEADER -->
+    <div class="top-nav">
+        <div class="coin-badge"><i class="fas fa-bolt"></i> <span id="coinDisplay">0</span></div>
     </div>
 
-    <div class="display-area" id="cardDisplay">
-        <span id="statusMsg">O destino está sendo traçado...</span>
+    <!-- TELA HOME (GACHA) -->
+    <div id="scr-home" class="screen active">
+        
+        <!-- SALÁRIO DIÁRIO -->
+        <div id="dailyBox">
+            <div>
+                <strong style="color:var(--ice-primary)">Recopensa diaria</strong>
+                <div style="font-size:0.8rem; color:#aaa">Pagamento disponível!</div>
+            </div>
+            <button onclick="claimDaily()" style="background:var(--ice-primary); border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer">PEGAR 100</button>
+        </div>
+
+        <h2>Invocação</h2>
+        <span class="sub-txt">Temporada: Marco Congelante </span>
+
+        <div class="gacha-stage">
+            <div class="card-wrap" id="mainCard">
+                <!-- Frente da Carta -->
+                <div class="c-face c-front">
+                    <i class="fas fa-snowflake fa-4x" style="color:var(--ice-primary); opacity:0.8; filter: drop-shadow(0 0 10px var(--ice-primary))"></i>
+                    <p style="margin-top:20px; font-size:0.8rem; letter-spacing:2px; color:#fff">SISTEMA GEGP</p>
+                </div>
+                <!-- Verso da Carta -->
+                <div class="c-face c-back bg-common" id="cardBack">
+                    <div id="cTag" style="font-size:0.7rem; background:#000; padding:4px 10px; border-radius:4px; margin-bottom:10px; border:1px solid #444">NOVO</div>
+                    <div id="cIcon" class="card-icon"></div>
+                    <h3 id="cName" style="margin:0; text-transform:uppercase; font-size: 1.1rem">Nome</h3>
+                    <p id="cType" style="color:#aaa; font-size:0.8rem; margin: 5px 0 15px 0">Comum</p>
+                    <a id="cLink" href="#" target="_blank" class="dl-btn"><i class="fas fa-download"></i> BAIXAR</a>
+                </div>
+            </div>
+        </div>
+
+        <button id="btnSummon" class="btn-summon">QUEBRAR GELO (5H)</button>
+        <div style="text-align: center; margin-top: 15px;">
+            <span id="timerDisplay" style="font-family:monospace; color:#8ab; font-size: 1rem;"></span>
+            <div style="font-size: 0.75rem; color: #555; margin-top: 8px;">
+                <i class="fas fa-gift"></i> Bônus de 100 GEGP+ por pacote!
+            </div>
+        </div>
     </div>
 
-    <button id="openBtn">INVOCAR CARTA (5H)</button>
-    <div id="timerText"></div>
+    <!-- TELA LOJA -->
+    <div id="scr-shop" class="screen">
+        <h2>Loja GEGP+</h2>
+        <span class="sub-txt">Invista seus ganhos de CEO</span>
 
-    <div class="warning-zone">
-        <strong>⚠️ PROIBIÇÃO ABSOLUTA DE VENDA:</strong>
-        <ul>
-            <li>Comercializar estas cartas é estritamente proibido.</li>
-            <li>O sistema de Local Storage impede abusos temporais.</li>
-            <li>O contador é persistente (não reinicia ao atualizar).</li>
-        </ul>
+        <!-- ITENS ESPECIAIS -->
+        <div class="shop-item" style="border-color: var(--ice-primary); box-shadow: 0 0 10px rgba(0,247,255,0.1)">
+            <div><strong style="color:var(--ice-primary)"><i class="fas fa-fire"></i> Energia Térmica</strong><br><span style="font-size:0.7rem;color:#888">Zerar espera de 5h</span></div>
+            <button class="shop-buy-btn" style="border-color:var(--ice-primary); color:var(--ice-primary)" onclick="buyEnergy()">300 <i class="fas fa-bolt"></i></button>
+        </div>
+
+        <div class="shop-item" style="border-color: var(--gold-legacy);">
+            <div><strong style="color:var(--gold-legacy)"><i class="fas fa-box"></i> Pacote Retrô</strong><br><span style="font-size:0.7rem;color:#888">Carta Aleatória Passada</span></div>
+            <button class="shop-buy-btn" style="border-color:var(--gold-legacy); color:var(--gold-legacy)" onclick="buyLegacyPack()">150 <i class="fas fa-bolt"></i></button>
+        </div>
+
+        <!-- CARTAS MARCO CONGELANTE -->
+        <div class="shop-sec-title">Marco Congelante (Comuns)</div>
+        <div id="shopList"></div>
     </div>
+
+    <!-- TELA COLEÇÃO -->
+    <div id="scr-coll" class="screen">
+        <h2>Arquivos</h2>
+        <span class="sub-txt">Toque na carta para baixar</span>
+
+        <!-- MARCO CONGELANTE -->
+        <div class="coll-header">
+            <span>❄️ MARCO CONGELANTE</span>
+            <span id="progFrozen">0/0</span>
+        </div>
+        <div class="grid" id="gridFrozen"></div>
+        
+        <div class="coming-soon">
+            <i class="fas fa-lock"></i> Novas cartas em breve
+        </div>
+
+        <!-- LEGACY -->
+        <div class="coll-header" style="border-color:var(--gold-legacy); margin-top: 40px;">
+            <span style="color:var(--gold-legacy)">📜 HERÓIS VS VILÕES</span>
+            <span id="progLegacy">0/0</span>
+        </div>
+        <div class="grid" id="gridLegacy"></div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav-bar">
+        <div class="nav-icon active" onclick="nav('home', this)">
+            <i class="fas fa-cube"></i>
+        </div>
+        <div class="nav-icon" onclick="nav('shop', this)">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="nav-icon" onclick="nav('coll', this)">
+            <i class="fas fa-book"></i>
+        </div>
+    </div>
+
 </div>
 
-<!-- Link do JS externo -->
-<script src="/js/Ovelhacard.js"></script>
+<script>
+    // ==========================================
+    //       CONFIGURAÇÃO & DADOS (DATABASE)
+    // ==========================================
+
+    const CONFIG = {
+        DB: "gegp_v2_ice_",
+        COOLDOWN: 5 * 60 * 60 * 1000,
+        DAILY_PAY: 100,
+        PACK_BONUS: 100,
+        PRICES: {
+            "Comum": 200,
+            "Rara": 500,
+            "Épica": 1200,
+            "Lendária": 2500
+        }
+    };
+
+    // 1. POOL MARCO CONGELANTE (TODAS COMUNS - FASE 1)
+    const FROZEN_POOL = [
+        { id: "mc_smartu", name: "SMARTU", rarity: "Comum", icon: "🧠", dl: "https://www.mediafire.com/view/tt6rsggdxbbbgbo/SMARTU.png/file" },
+        { id: "mc_mascarede", name: "Mascarede (MC)", rarity: "Comum", icon: "🎭", dl: "https://www.mediafire.com/view/10qo4j50m0gke7b/Masquerade_MC.png/file" },
+        { id: "mc_jb", name: "JB (MC)", rarity: "Comum", icon: "🕶️", dl: "https://www.mediafire.com/view/qu5hd8b1jihr492/JB_MC.png/file" },
+        { id: "mc_dome", name: "DO_ME", rarity: "Comum", icon: "🐑", dl: "https://www.mediafire.com/view/546cj9msryviuq5/DO_ME.png/file" },
+        { id: "mc_amestica", name: "Amestiça", rarity: "Comum", icon: "🟣", dl: "https://www.mediafire.com/view/acgdw47zcxz2psv/Amesti%25C3%25A7a.png/file" },
+        { id: "mc_cajado", name: "Cajado Sonna", rarity: "Comum", icon: "🪄", dl: "https://www.mediafire.com/view/6go2jm9l33sbcao/Cajadosonna.png/file" },
+        { id: "mc_capa", name: "Capa", rarity: "Comum", icon: "🧥", dl: "https://www.mediafire.com/view/4m82a40mw9ia8hj/Capa.png/file" },
+        { id: "mc_cocomela", name: "Cocomela", rarity: "Comum", icon: "🍄", dl: "https://www.mediafire.com/view/5v4qh2r45lloesx/Cocomela.png/file" },
+        { id: "mc_pombistino", name: "Pombistino", rarity: "Comum", icon: "🐦", dl: "https://www.mediafire.com/view/tgp722g0l1dhs0f/Pombistino.png/file" }
+    ];
+
+    // 2. POOL LEGACY (ARQUIVO PASSADO)
+    const LEGACY_POOL = [
+        { id: "l1", name: "Dona Ovelha", type: "Clássica", icon: "🐑", dl: "https://www.mediafire.com/view/2dw5qmau60l24tz/DonaOvelha.png" },
+        { id: "l2", name: "JB", type: "Clássica", icon: "🕶️", dl: "https://www.mediafire.com/view/g44sdsh2n1ikis0/Jb.png" },
+        { id: "l3", name: "Sonna", type: "Clássica", icon: "💤", dl: "https://www.mediafire.com/view/566i0z23dxrmdlo/Sonna.png" },
+        { id: "l4", name: "Mascarede", type: "Clássica", icon: "🎭", dl: "https://www.mediafire.com/view/twzbei5sqxzilka/Mascarede.png" },
+        { id: "l5", name: "Mega Gabriel", type: "Clássica", icon: "👑", dl: "https://www.mediafire.com/view/nh7bknyd5b9tt35/MegaGabriel.png" }
+    ];
+
+    // ==========================================
+    //           SISTEMA (LÓGICA)
+    // ==========================================
+
+    let state = {
+        coins: parseInt(localStorage.getItem(CONFIG.DB+'coins')) || 0,
+        lastSummon: parseInt(localStorage.getItem(CONFIG.DB+'lastSummon')) || 0,
+        lastDaily: parseInt(localStorage.getItem(CONFIG.DB+'lastDaily')) || 0,
+        inv: JSON.parse(localStorage.getItem(CONFIG.DB+'inv')) || []
+    };
+
+    const ui = {
+        coins: document.getElementById('coinDisplay'),
+        card: document.getElementById('mainCard'),
+        btnSummon: document.getElementById('btnSummon'),
+        timer: document.getElementById('timerDisplay')
+    };
+
+    function save() {
+        localStorage.setItem(CONFIG.DB+'coins', state.coins);
+        localStorage.setItem(CONFIG.DB+'lastSummon', state.lastSummon);
+        localStorage.setItem(CONFIG.DB+'lastDaily', state.lastDaily);
+        localStorage.setItem(CONFIG.DB+'inv', JSON.stringify(state.inv));
+        updateUI();
+    }
+
+    function updateUI() {
+        ui.coins.textContent = state.coins;
+        renderCollection(FROZEN_POOL, 'gridFrozen', 'progFrozen');
+        renderCollection(LEGACY_POOL, 'gridLegacy', 'progLegacy');
+        renderShopList();
+        checkDaily();
+    }
+
+    // --- DAILY LOGIN ---
+    function checkDaily() {
+        const now = Date.now();
+        if (now - state.lastDaily > 86400000) { // 24h
+            document.getElementById('dailyBox').style.display = 'flex';
+        } else {
+            document.getElementById('dailyBox').style.display = 'none';
+        }
+    }
+
+    window.claimDaily = () => {
+        state.coins += CONFIG.DAILY_PAY;
+        state.lastDaily = Date.now();
+        save();
+        alert(`💰 Salário recebido: +${CONFIG.DAILY_PAY} GEGP+`);
+    };
+
+    // --- SUMMON SYSTEM ---
+    ui.btnSummon.onclick = () => {
+        // Smart Loot para cartas comuns da fase 1
+        const missing = FROZEN_POOL.filter(c => !state.inv.includes(c.id));
+        
+        let card;
+        let isNew = true;
+
+        if (missing.length > 0) {
+            // Prioriza carta nova
+            card = missing[Math.floor(Math.random() * missing.length)];
+            state.inv.push(card.id);
+        } else {
+            // Todas completas -> Repetida (Cashback)
+            isNew = false;
+            card = FROZEN_POOL[Math.floor(Math.random() * FROZEN_POOL.length)];
+            state.coins += 50; // Cashback
+        }
+
+        // Bônus de Pacote
+        state.coins += CONFIG.PACK_BONUS;
+        state.lastSummon = Date.now();
+        
+        save();
+        revealCard(card, isNew, 50);
+    };
+
+    function revealCard(card, isNew, cashback) {
+        ui.card.classList.remove('flipped');
+        
+        setTimeout(() => {
+            document.getElementById('cName').textContent = card.name;
+            document.getElementById('cType').textContent = card.rarity || "Clássica";
+            document.getElementById('cIcon').textContent = card.icon;
+            document.getElementById('cLink').href = card.dl;
+            
+            const tag = document.getElementById('cTag');
+            if(isNew) {
+                tag.textContent = "NOVO! +100 GEGP+";
+                tag.style.background = "var(--ice-primary)";
+                tag.style.color = "#000";
+                tag.style.borderColor = "transparent";
+            } else {
+                tag.textContent = `REPETIDA (+${cashback} GEGP+)`;
+                tag.style.background = "#333";
+                tag.style.color = "#fff";
+                tag.style.borderColor = "#666";
+            }
+            ui.card.classList.add('flipped');
+        }, 200);
+    }
+
+    // --- SHOP ---
+    window.buyEnergy = () => {
+        if(state.coins < 300) return alert("Falta GEGP+!");
+        state.coins -= 300;
+        state.lastSummon = 0;
+        save();
+        alert("Energia Térmica Restaurada!");
+        nav('home', document.querySelector('.nav-icon'));
+    };
+
+    window.buyLegacyPack = () => {
+        if(state.coins < 150) return alert("Falta GEGP+!");
+        
+        const card = LEGACY_POOL[Math.floor(Math.random() * LEGACY_POOL.length)];
+        state.coins -= 150;
+        state.coins += CONFIG.PACK_BONUS; // Devolve o bônus de abrir
+        
+        let msg = "";
+        if(!state.inv.includes(card.id)) {
+            state.inv.push(card.id);
+            msg = `🎉 Nova carta clássica: ${card.name}!`;
+        } else {
+            state.coins += 50;
+            msg = `♻️ Repetida (${card.name}). Reembolso: +50 GEGP+`;
+        }
+        alert(msg);
+        save();
+    };
+
+    function renderShopList() {
+        const list = document.getElementById('shopList');
+        list.innerHTML = "";
+
+        FROZEN_POOL.forEach(c => {
+            const owned = state.inv.includes(c.id);
+            const price = CONFIG.PRICES[c.rarity] || 200;
+            
+            const div = document.createElement('div');
+            div.className = `shop-item ${owned ? 'owned' : ''}`;
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px">
+                    <div style="font-size:1.5rem">${c.icon}</div>
+                    <div>
+                        <div style="font-weight:bold; font-size:0.9rem">${c.name}</div>
+                        <div style="font-size:0.7rem; color:var(--common)">${c.rarity}</div>
+                    </div>
+                </div>
+                ${owned 
+                    ? `<span style="font-size:0.7rem"><i class="fas fa-check"></i></span>` 
+                    : `<button class="shop-buy-btn r-common" onclick="buySingle('${c.id}', ${price})">${price} GEGP+</button>`
+                }
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    window.buySingle = (id, price) => {
+        if(state.coins < price) return alert("GEGP+ Insuficiente!");
+        if(confirm(`Comprar carta por ${price} GEGP+?`)) {
+            state.coins -= price;
+            state.inv.push(id);
+            save();
+            alert("Compra realizada!");
+        }
+    };
+
+    // --- COLLECTION RENDER ---
+    function renderCollection(pool, gridId, progId) {
+        const grid = document.getElementById(gridId);
+        grid.innerHTML = "";
+        
+        const ownedCount = pool.filter(c => state.inv.includes(c.id)).length;
+        document.getElementById(progId).textContent = `${ownedCount}/${pool.length}`;
+
+        pool.forEach(c => {
+            const owned = state.inv.includes(c.id);
+            const div = document.createElement('div');
+            div.className = `slot ${owned ? 'owned' : ''}`;
+            
+            div.innerHTML = `
+                <div style="font-size:2.5rem; margin-bottom:10px; filter:drop-shadow(0 0 5px #000)">${owned ? c.icon : '?'}</div>
+                <div style="font-size:0.75rem; color:#fff; font-weight:bold; line-height:1.2">${owned ? c.name : 'Bloqueado'}</div>
+                ${owned ? `<a href="${c.dl}" target="_blank" class="dl-btn" style="position:absolute; bottom:5px; padding:5px 10px; font-size:0.6rem; margin:0">BAIXAR</a>` : ''}
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    // --- TIMER & NAV ---
+    setInterval(() => {
+        const diff = Date.now() - state.lastSummon;
+        const remain = CONFIG.COOLDOWN - diff;
+        if (remain > 0) {
+            ui.btnSummon.disabled = true;
+            const h = Math.floor(remain / 3600000);
+            const m = Math.floor((remain % 3600000) / 60000);
+            ui.timer.textContent = `Descongela em: ${h}h ${m}m`;
+            ui.btnSummon.textContent = "CONGELADO";
+        } else {
+            ui.btnSummon.disabled = false;
+            ui.timer.textContent = "Pronto para invocar!";
+            ui.btnSummon.textContent = "QUEBRAR GELO (5H)";
+        }
+    }, 1000);
+
+    window.nav = (id, btn) => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('scr-'+id).classList.add('active');
+        document.querySelectorAll('.nav-icon').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+    };
+
+    // START
+    updateUI();
+
+</script>
 
 </body>
 </html>
