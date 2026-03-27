@@ -1,116 +1,797 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Idle Ovelha GEGP</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Idle Ovelha GEGP 🐑</title>
+    <!-- Fontes Premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4c51bf;
+            --secondary: #805ad5;
+            --success: #48bb78;
+            --danger: #e53e3e;
+            --warning: #ed8936;
+            --bg: #f4f7fc;
+            --panel: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+        }
 
-<!-- Link do CSS externo -->
-<link rel="stylesheet" href="/CSS/idle.css">
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-main h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        
+        .currency-group { text-align: right; min-width: 220px; }
+        .money { font-size: 2.2rem; font-weight: 700; color: var(--success); display: block; line-height: 1; }
+        .gegp-money { font-size: 1.3rem; font-weight: 600; color: var(--secondary); display: block; margin-top: 5px; }
+        .rate { font-size: 0.85rem; color: var(--text-light); font-family: 'JetBrains+Mono', monospace; }
+
+        .gegp-progress { height: 8px; background: #e2e8f0; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+        .gegp-bar { height: 100%; background: var(--secondary); transition: width 0.3s ease; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .panel { 
+            background: var(--panel); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        h2 { font-size: 1.1rem; color: var(--primary); margin: 0 0 15px 0; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+
+        .list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        
+        .item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .item.active-super { border: 2px solid var(--danger); background: #fff5f5; }
+        
+        .item-content { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .item-info { display: flex; flex-direction: column; }
+        
+        .item .title { font-weight: 700; font-size: 0.95rem; display: block; }
+        .item .meta { font-size: 0.75rem; color: var(--text-light); line-height: 1.4; }
+        .item .owned { font-weight: 600; font-size: 0.8rem; color: var(--primary); margin-top: 4px; }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+        }
+
+        button {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .buy-btn { background: var(--primary); color: white; min-width: 100px; }
+        .buy-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+        .buy-btn:active:not(:disabled) { transform: scale(0.96); }
+        .gegp-btn { background: var(--secondary); color: white; }
+        .loot-btn { width: 100%; padding: 12px; font-size: 0.95rem; margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; line-height: 1.2;}
+        .secondary { background: white; border: 1px solid #cbd5e0; color: var(--text); }
+        .secondary:hover { background: #f7fafc; }
+
+        .rarity-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-left: 5px; }
+        .rarity-Comum { background: #e2e8f0; color: #4a5568; }
+        .rarity-Rara { background: #bee3f8; color: #2b6cb0; }
+        .rarity-Epica { background: #fbd38d; color: #975a16; }
+        .rarity-Lendaria { background: #fed7e2; color: #9b2c2c; }
+        .rarity-GEGP { background: #e9d8fd; color: #6b46c1; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stats-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left;}
+        .stats-table th, .stats-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 0.9rem; }
+        .stats-table th { color: var(--text-light); font-weight: 500; }
+        .stats-table td { font-weight: 700; text-align: right; }
+
+        .footer-note { font-size: 0.75rem; color: var(--text-light); margin-top: 15px; padding-top: 10px; border-top: 1px dashed #e2e8f0; line-height: 1.4; text-align: left;}
+        .hint { background: #f0fff4; border: 1px solid #c6f6d5; padding: 12px; border-radius: 8px; color: #276749; font-size: 0.85rem; margin-top: 15px; text-align: left;}
+        
+        .loot-icon { font-size: 3rem; margin: 10px 0; }
+        .loot-reward { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; text-align: center; align-items: center; }
+            .currency-group { text-align: center; width: 100%; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <header style="display: flex; justify-content: space-between; align-items: flex-start;">
-      <div>
-        <h1>Ovelha idle GEGP</h1>
-        <div class="rate" id="dateInfo"></div>
-        <div class="controls">
-          <button class="secondary" id="saveBtn">Salvar agora</button>
-          <button class="secondary" id="resetBtn">Resetar progresso</button>
-          <button class="secondary" id="statsBtn">Estatísticas do Jogo</button>
-        </div>
-      </div>
-      <div class="currency-group">
-        <div>
-          <span class="money" id="money">R$ 0,00</span>
-          <div class="rate" id="rate">+ R$ 0,00 / s</div>
-        </div>
-        <div style="margin-top: 8px;">
-          <span class="gegp-money" id="gegp">GEGP+ 0</span>
-          <div class="rate" id="gegpRate">R$ 0 / 1.000 para GEGP+ 1</div>
-          <div class="gegp-progress"><div class="gegp-bar" id="gegpBar"></div></div>
-        </div>
-      </div>
-    </header>
-    <div class="grid">
-      <div class="panel">
-        <h2>Personagens para Comprar (R$)</h2>
-        <div class="list" id="store"></div>
-        <div class="footer-note">Dica: Comprar mais unidades aumenta sua renda base por segundo, mas pense em economizar sempre!.</div>
-      </div>
 
-      <div class="panel">
-        <h2>Skins (Raridades e GEGP+)</h2>
-        <div class="list" id="skinList"></div>
-        <div class="footer-note">Skins dão bônus de renda permanentes ou temporários, então sempre veja se o beneficio dela te ajuda agora (GEGP+).</div>
-      </div>
+    <div class="app">
+        <header>
+            <div class="header-main">
+                <h1>Ovelha Idle GEGP 🐑</h1>
+                <div class="rate" id="dateInfo"></div>
+                <div class="controls">
+                    <button class="secondary" id="saveBtn">Salvar agora</button>
+                    <button class="secondary" id="statsBtn">Estatísticas do Jogo</button>
+                    <button class="secondary" style="color:var(--danger)" id="resetBtn">Resetar</button>
+                </div>
+            </div>
+            <div class="currency-group">
+                <span class="money" id="money">R$ 0,00</span>
+                <div class="rate" id="rate">+ R$ 0,00 / s</div>
+                <div style="margin-top: 15px;">
+                    <span class="gegp-money" id="gegp">GEGP+ 0</span>
+                    <div class="rate" id="gegpRate">R$ 0 / 1.000</div>
+                    <div class="gegp-progress"><div class="gegp-bar" id="gegpBar"></div></div>
+                </div>
+            </div>
+        </header>
 
-      <div class="panel">
-        <h2>Ativar Supers (GEGP+)</h2>
-        <div class="list" id="superList"></div>
-        <div class="hint" id="supersInfo">
-          Supers ativas dão bônus massivos por 1200s (20 minutos), então use elas com sabedoria.
+        <div class="grid">
+            <!-- PAINEL DA LOJA -->
+            <div class="panel">
+                <h2>Personagens (R$)</h2>
+                <div class="list" id="store"></div>
+                <div class="footer-note">Regra GEGP: Todos os personagens rendem 10% do seu valor por segundo!</div>
+            </div>
+
+            <!-- PAINEL DE LOOT BOXES -->
+            <div class="panel">
+                <h2>Loot Boxes (Ovelhas) 🎁</h2>
+                <div style="text-align: center; padding: 5px;">
+                    
+                    <button class="buy-btn loot-btn" style="background: var(--warning);" id="btnComprarLoot">
+                        <span>Caixa Clássica Surpresa (R$ 5.000)</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Mix de prêmios e GEGP+</span>
+                    </button>
+                    
+                    <button class="buy-btn loot-btn" style="background: #38b2ac;" id="btnComprarLootOvelha">
+                        <span>Caixa do Rebanho (R$ 15.000)</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Apenas personagens da classe Ovelha 🐑</span>
+                    </button>
+                    
+                    <button class="buy-btn loot-btn" style="background: #9f7aea;" id="btnComprarCaixaSuprema">
+                        <span>Caixa Suprema (R$ 500.000) 👑</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Alta Renda Lendária (0.2% de vir Gabriel)</span>
+                    </button>
+
+                </div>
+                
+                <h2 style="margin-top: 20px;">Skins (Raridades)</h2>
+                <div class="list" id="skinList"></div>
+            </div>
+
+            <!-- PAINEL DE SUPERS -->
+            <div class="panel">
+                <h2>Ativar Supers (GEGP+)</h2>
+                <div class="list" id="superList"></div>
+                <div class="hint" id="supersInfo">Supers ativos garantem bônus massivos por 1200s (20 minutos).</div>
+            </div>
+
+            <!-- PAINEL RESUMO -->
+            <div class="panel">
+                <h2>Resumo & Estratégia</h2>
+                <div id="migrationMessage"></div>
+                <div class="hint" id="summary"></div>
+                
+                <div class="hint" style="margin-top:12px; background: #fffaf0; border-color: #feebc8; color: #9c4221;">
+                    Promoção do Gabriel ativa em março e agosto: preço cai 50% mas depois aumenta 10%.
+                    <span class="badge" id="promoBadge" style="display:none; background:var(--danger); color:white; padding:2px 5px; border-radius:4px; font-size:0.7rem">PROMO ATIVA</span>
+                </div>
+                
+                <div class="footer-note">O jogo foca em combos de Supers, Loot Boxes e Skins Lendárias/GEGP+ para maximizar a renda. 🐑</div>
+            </div>
         </div>
-      </div>
+    </div>
 
-      <div class="panel">
-        <h2>Resumo & Estratégia</h2>
-        <div id="migrationMessage"></div>
-        <div class="hint" id="summary"></div>
+    <!-- MODAIS -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal">
+            <h3 style="margin-top:0">Resetar Progresso?</h3>
+            <p style="font-size: 0.9rem; color: var(--text-light); line-height: 1.5; text-align: left;">Tem certeza que deseja resetar todo o seu progresso? Esta ação não pode ser desfeita.</p>
+            <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="secondary" id="cancelResetBtn">Cancelar</button>
+                <button style="background:var(--danger); color:white" id="confirmResetBtn">Resetar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal">
+            <h3 style="margin-top:0">Estatísticas do Jogo</h3>
+            <table class="stats-table">
+                <tr><th>Tempo de Jogo (online)</th><td id="statPlaytime">0s</td></tr>
+                <tr><th>Personagens Comprados</th><td id="statItemsBought">0</td></tr>
+                <tr style="color:var(--success)"><th>Dinheiro Total Ganho</th><td id="statMoneyEarned">R$ 0,00</td></tr>
+                <tr style="color:var(--secondary)"><th>GEGP+ Total Ganho</th><td id="statGEGPEarned">0</td></tr>
+            </table>
+            <button class="buy-btn" style="width:100%; margin-top: 20px;" id="closeStatsBtn">Fechar</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="lootModal">
+        <div class="modal">
+            <h3 style="margin-top:0; color: var(--warning);">🎁 Caixa Aberta!</h3>
+            <div class="loot-icon">✨</div>
+            <p style="font-size: 0.9rem; color: var(--text-light);">Você encontrou:</p>
+            <div class="loot-reward" id="lootRewardText">1x Fantasgoro</div>
+            <button class="buy-btn" style="width:100%; background: var(--warning);" id="closeLootBtn">Incrível!</button>
+        </div>
+    </div>
+
+    <script>
+        /* ======= JS V6 - SISTEMA DE 3 LOOT BOXES ======= */
+        const SAVE_KEY = 'idlegame_ovelha_gegp_v6'; 
+        const SUPER_DURATION_S = 1200;
+        const GEGP_RATE = 1000;
         
-        <div class="hint" style="margin-top:12px">
-          Promoção do Gabriel ativa em março e agosto: preço cai por 50% mas depois aumenta 10%.
-          <span class="badge" id="promoBadge" style="display:none">PROMO ATIVA</span>
-        </div>
+        // Preços das Loot Boxes
+        const PRECO_LOOT_BOX = 5000;
+        const PRECO_LOOT_OVELHA = 15000;
+        const PRECO_CAIXA_SUPREMA = 500000;
+
+        const brl = v => {
+          const val = (typeof v !== 'number' || isNaN(v) || !isFinite(v)) ? 0 : v;
+          return new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(val);
+        };
+
+        const fmt = v => {
+          const val = (typeof v !== 'number' || isNaN(v) || !isFinite(v)) ? 0 : v;
+          return new Intl.NumberFormat('pt-BR').format(Math.floor(val));
+        };
+
+        const fmtDuration = (seconds) => {
+            if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) return '0s';
+            const s = Math.floor(seconds);
+            const d = Math.floor(s / (3600 * 24));
+            const h = Math.floor((s % (3600 * 24)) / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            let parts = [];
+            if (d > 0) parts.push(`${d}d`);
+            if (h > 0) parts.push(`${h}h`);
+            if (m > 0) parts.push(`${m}m`);
+            parts.push(`${sec}s`);
+            return parts.join(' ');
+        };
+
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const promoGabrielActive = (month === 3 || month === 8);
+
+        const RARITY_BONUSES = {
+            Comum: { bonusRPS: 0.5, multiplier:1, frequency: 30 }, 
+            Rara: { bonusRPS: 0.5, multiplier:1, frequency: 15 }, 
+            Épica: { multiplier: 2, bonusRPS:0, frequency: 1 }, 
+            Lendária: { multiplier: 2, bonusRPS: 0.75, frequency: 10 }, 
+            'GEGP+': { multiplier: 1, bonusRPS: 0, frequency: 0 } 
+        };
+
+        const SUPERS = [
+            { id:'dona_ovelha_super', nome:'Matriarca', targetId:'ovelha', custoGEGP:5000, duration:SUPER_DURATION_S, efeitoRPS:2500, type:'fixed' },
+            { id:'ovelha_barbara_super', nome:'Chifres de justiça', targetId:'ovelha_barbara', custoGEGP:7000, duration:SUPER_DURATION_S, efeitoPorcentagem:0.50, targetType:'ovelha', type:'percent_sheep_global' },
+            { id:'filhote_super', nome:'Fofura Suprema', targetId:'ovelha_filhote', custoGEGP:3000, duration:SUPER_DURATION_S, efeitoRPS:1000, type:'fixed' },
+            { id:'jb_super', nome:'Super Advocacia (JB)', targetId:'jb', custoGEGP:4000, duration:SUPER_DURATION_S, efeitoGEGPMultiplier: 2, type:'gegp_multiplier' }
+        ];
+        const BUYABLE_SUPERS = SUPERS.filter(s => s.type !== 'percent_chosen' && s.type !== 'fixed_chosen'); 
+
+        const calcularRenda = (preco) => preco > 1 ? preco * 0.10 : 1;
+
+        const BASE_ITEMS = [
+          { id:'amiguinho',nome:'Amiguinho', preco:10, qtd:1, desc:'Seu primeiro amigo.', tags:[] },
+          { id:'ovelha_filhote', nome:'Filhote de Ovelha', preco:50, qtd:0, desc:'Uma ovelhinha pequena.', tags:['ovelha'] },
+          { id:'ovelha', nome:'Dona Ovelha', preco:500, qtd:0, desc:'A matriarca! Recebeu um buff!', tags:['ovelha'] }, 
+          { id:'ovelha_barbara', nome:'Ovelha Bárbara', preco:800, qtd:0, desc:'Irmã da Dona Ovelha.', tags:['ovelha'] },
+          { id:'jb', nome:'JB', preco:2000, qtd:0, desc:'Advogado da vila da ovelha.', tags:['familia da justiça'] },
+          { id:'amestica', nome:'Amestica', preco:4000, qtd:0, desc:'Amante da natureza e da paz.', tags:['familia da justiça'] },
+          { id:'diva', nome:'Diva', preco:25000, qtd:0, desc:'Renda Média. Brilhante e famosa.', tags:[] }, 
+          { id:'ourino', nome:'Ourino', preco:100000, qtd:0, desc:'Primo de JB.', tags:['familia da justiça'] },
+          { id:'fantasgoro', nome:'Fantasgoro', preco:250000, qtd:0, desc:'Renda Alta. Uma lenda misteriosa.', tags:[] }, 
+          { id:'sona', nome:'Sonna', preco:500000, qtd:0, desc:'Narra e rende ao mesmo tempo.', tags:['ovelha'] },
+          { id:'gabriel', nome:'Gabriel', preco:10000000, qtd:0, desc:'Chefe, faz o dinheiro girar mais rápido.', tags:['criador'] }
+        ].map(item => ({ ...item, renda: calcularRenda(item.preco) })); 
+
+        const SKINS = [
+            { id:'amiguinho_comum', nome:'Amiguinho Apoiador', preco:10000, rarity:'Comum', target_character_id:'amiguinho', qtd:0, desc:'Bônus a cada 30s.' },
+            { id:'ovelha_rara', nome:'Ovelha Terapêutica', preco:50000, rarity:'Rara', target_character_id:'ovelha', qtd:0, desc:'Bônus a cada 15s.' },
+            { id:'jb_epico', nome:'JB V2.0', preco:500000, rarity:'Épica', target_character_id:'jb', qtd:0, desc:'Duplica a renda do JB.' },
+            { id:'barbara_lendaria', nome:'Bárbara Chefe', preco:1000000, rarity:'Lendária', target_character_id:'ovelha_barbara', qtd:0, desc:'2X a renda + bônus.' },
+            { id:'gegp_super_skin', nome:'Pele Dourada (GEGP+)', precoGEGP:7000, rarity:'GEGP+', target_character_id:null, qtd:0, desc:'Ativa Super Global.' },
+        ];
+
+        let state = {
+          dinheiro: 10, gegp: 0, earnedSinceLastGEGP: 0,
+          items: JSON.parse(JSON.stringify(BASE_ITEMS)),
+          skins: JSON.parse(JSON.stringify(SKINS)),
+          activeSupers: [], lastTick: Date.now(), migrationMessage: null,
+          stats: { totalPlayTimeSeconds: 0, totalMoneyEarned: 0, totalGEGPEarned: 0, totalItemsBought: 0 }
+        };
+
+        const getBaseRPS = (item) => (Number(item.renda) || 0) * (Number(item.qtd) || 0);
+
+        function getSkinBonus(item, nowTime) {
+            let bonus = 0;
+            const itemSkin = state.skins.find(s => s.target_character_id === item.id && s.qtd > 0);
+            if (!itemSkin) return bonus;
+            const rarity = RARITY_BONUSES[itemSkin.rarity];
+            if (!rarity) return bonus;
+            const mult = Number(rarity.multiplier) || 1;
+            const freq = Number(rarity.frequency) || 0;
+            const bRPS = Number(rarity.bonusRPS) || 0;
+            if (mult > 1) bonus += (mult - 1) * getBaseRPS(item); 
+            if (freq > 0 && bRPS > 0) {
+                const second = Math.floor(nowTime / 1000);
+                if (second % freq === 0) bonus += bRPS * getBaseRPS(item);
+            }
+            return isNaN(bonus) ? 0 : bonus;
+        }
+
+        function getSuperBonus(item) {
+            let globalBonus = 0;
+            const nowTs = Date.now();
+            const activeSupers = state.activeSupers.filter(s => s.expires > nowTs);
+            activeSupers.forEach(active => {
+                const superDef = SUPERS.find(s => s.id === active.id);
+                if (!superDef && active.id !== 'gegp_super_active') return;
+                if (superDef) {
+                    if (superDef.type === 'fixed' && item.id === superDef.targetId) globalBonus += (Number(superDef.efeitoRPS) || 0) * (item.qtd || 0); 
+                    if (superDef.type === 'percent_sheep_global' && item.tags.includes('ovelha')) globalBonus += (Number(superDef.efeitoPorcentagem) || 0) * getBaseRPS(item);
+                }
+                if (active.id === 'gegp_super_active') {
+                     const itemSuper = BUYABLE_SUPERS.find(s => s.targetId === item.id && s.type === 'fixed');
+                     if (itemSuper) globalBonus += (Number(itemSuper.efeitoRPS) || 0) * (item.qtd || 0);
+                }
+            });
+            return isNaN(globalBonus) ? 0 : globalBonus;
+        }
+
+        function rendaPorSegundo(nowTime) {
+          const total = state.items.reduce((acc, item) => acc + getBaseRPS(item) + getSkinBonus(item, nowTime) + getSuperBonus(item), 0);
+          return (isNaN(total) || !isFinite(total)) ? 0 : total;
+        }
+
+        function tick() {
+          const nowTs = Date.now();
+          if (!state.lastTick || isNaN(state.lastTick)) state.lastTick = nowTs;
+          let dt = (nowTs - state.lastTick) / 1000;
+          if (dt < 0 || isNaN(dt)) dt = 0;
+          if (dt > 3600) dt = 3600; 
+          state.stats.totalPlayTimeSeconds += dt;
+          const currentRPS = rendaPorSegundo(nowTs);
+          const moneyEarned = currentRPS * dt;
+          if (!isNaN(moneyEarned) && isFinite(moneyEarned)) {
+              state.dinheiro += moneyEarned;
+              state.stats.totalMoneyEarned += moneyEarned;
+              state.earnedSinceLastGEGP += moneyEarned;
+              
+              if (state.earnedSinceLastGEGP >= GEGP_RATE) {
+                  let gegpMultiplier = 1;
+                  if (state.activeSupers.some(s => s.id === 'jb_super' && s.expires > nowTs)) {
+                      gegpMultiplier = 2;
+                  }
+
+                  const gegpBaseGained = Math.floor(state.earnedSinceLastGEGP / GEGP_RATE);
+                  const gegpFinalGained = gegpBaseGained * gegpMultiplier;
+
+                  if (isFinite(gegpFinalGained) && gegpFinalGained > 0) {
+                    state.gegp += gegpFinalGained;
+                    state.stats.totalGEGPEarned += gegpFinalGained;
+                    state.earnedSinceLastGEGP %= GEGP_RATE;
+                  }
+              }
+          }
+          state.lastTick = nowTs;
+          state.activeSupers = state.activeSupers.filter(s => s.expires > nowTs);
+        }
+
+        function precoAtual(item) {
+          if (!item) return Infinity;
+          let p = item.preco;
+          if (item.id === 'gabriel' && promoGabrielActive) p = item.preco * 0.5;
+          return (isNaN(p) || p < 0) ? Infinity : p;
+        }
+
+        function comprar(id) {
+          const item = state.items.find(i => i.id === id);
+          if (!item) return;
+          const p = precoAtual(item);
+          if (!isFinite(p)) return;
+          if (state.dinheiro >= p) {
+            state.dinheiro -= p;
+            item.qtd = (Number(item.qtd) || 0) + 1;
+            state.stats.totalItemsBought += 1;
+            renderAll();
+            save();
+          }
+        }
+
+        function mostrarModalLoot(texto) {
+            document.getElementById('lootRewardText').textContent = texto;
+            document.getElementById('lootModal').classList.add('active');
+        }
+
+        // --- SISTEMA DE LOOT BOXES ---
+        function abrirLootBox() {
+            if (state.dinheiro >= PRECO_LOOT_BOX) {
+                state.dinheiro -= PRECO_LOOT_BOX;
+                const rand = Math.random();
+                let recompensaTexto = "";
+                
+                if (rand < 0.40) {
+                    const gegpGanho = Math.floor(Math.random() * 41) + 10;
+                    state.gegp += gegpGanho;
+                    state.stats.totalGEGPEarned += gegpGanho;
+                    recompensaTexto = `${gegpGanho} GEGP+ ✨`;
+                } else if (rand < 0.70) {
+                    state.items.find(i => i.id === 'ovelha_filhote').qtd += 2;
+                    recompensaTexto = "2x Filhotes de Ovelha 🐑";
+                } else if (rand < 0.90) {
+                    state.items.find(i => i.id === 'jb').qtd += 1;
+                    recompensaTexto = "1x JB ⚖️";
+                } else if (rand < 0.98) {
+                    state.items.find(i => i.id === 'diva').qtd += 1;
+                    recompensaTexto = "1x Diva 🌟 (Raro!)";
+                } else {
+                    state.items.find(i => i.id === 'fantasgoro').qtd += 1;
+                    recompensaTexto = "1x FANTASGORO 👻 (LENDÁRIO!)";
+                }
+                mostrarModalLoot(recompensaTexto);
+                save(); renderAll();
+            }
+        }
+
+        function abrirLootBoxOvelha() {
+            if (state.dinheiro >= PRECO_LOOT_OVELHA) {
+                state.dinheiro -= PRECO_LOOT_OVELHA;
+                const rand = Math.random();
+                let recompensaTexto = "";
+                
+                if (rand < 0.50) {
+                    state.items.find(i => i.id === 'ovelha_filhote').qtd += 3;
+                    recompensaTexto = "3x Filhotes de Ovelha 🐑";
+                } else if (rand < 0.85) {
+                    state.items.find(i => i.id === 'ovelha').qtd += 1;
+                    recompensaTexto = "1x Dona Ovelha 🐑";
+                } else if (rand < 0.98) {
+                    state.items.find(i => i.id === 'ovelha_barbara').qtd += 1;
+                    recompensaTexto = "1x Ovelha Bárbara ⚔️";
+                } else {
+                    state.items.find(i => i.id === 'sona').qtd += 1;
+                    recompensaTexto = "1x Sonna 🎵 (LENDÁRIO!)";
+                }
+                mostrarModalLoot(recompensaTexto);
+                save(); renderAll();
+            }
+        }
+
+        function abrirCaixaSuprema() {
+            if (state.dinheiro >= PRECO_CAIXA_SUPREMA) {
+                state.dinheiro -= PRECO_CAIXA_SUPREMA;
+                const rand = Math.random();
+                let recompensaTexto = "";
+                
+                if (rand < 0.002) { // 0.2% DE CHANCE
+                    state.items.find(i => i.id === 'gabriel').qtd += 1;
+                    recompensaTexto = "1x GABRIEL 👑 (MÍTICO - 0.2%!)";
+                } else if (rand < 0.30) {
+                    state.items.find(i => i.id === 'fantasgoro').qtd += 1;
+                    recompensaTexto = "1x Fantasgoro 👻 (Lendário)";
+                } else if (rand < 0.60) {
+                    state.items.find(i => i.id === 'ourino').qtd += 1;
+                    recompensaTexto = "1x Ourino 💰 (Mítico)";
+                } else {
+                    state.items.find(i => i.id === 'diva').qtd += 3;
+                    recompensaTexto = "3x Diva 🌟 (Alta Renda)";
+                }
+                mostrarModalLoot(recompensaTexto);
+                save(); renderAll();
+            }
+        }
+
+        function comprarSkin(id) {
+          const skin = state.skins.find(s => s.id === id);
+          if (!skin) return;
+          const isGEGP = skin.rarity === 'GEGP+';
+          const custo = isGEGP ? skin.precoGEGP : skin.preco;
+          if (skin.qtd > 0) return; 
+          if (isGEGP) {
+              if (state.gegp >= custo) {
+                  state.gegp -= custo;
+                  skin.qtd = 1;
+                  const expires = Date.now() + SUPER_DURATION_S * 1000;
+                  state.activeSupers.push({ id: 'gegp_super_active', expires: expires });
+              }
+          } else {
+              if (state.dinheiro >= custo) {
+                  state.dinheiro -= custo;
+                  skin.qtd = 1;
+              }
+          }
+          save(); renderAll();
+        }
+
+        function ativarSuper(id) {
+            const superDef = BUYABLE_SUPERS.find(s => s.id === id);
+            if (!superDef) return;
+            if (state.activeSupers.some(s => s.id === id)) return;
+            if (state.gegp >= superDef.custoGEGP) {
+                state.gegp -= superDef.custoGEGP;
+                const expires = Date.now() + SUPER_DURATION_S * 1000;
+                state.activeSupers.push({ id: superDef.id, expires: expires });
+                save(); renderAll();
+            }
+        }
+
+        function load() {
+          try {
+            let raw = localStorage.getItem(SAVE_KEY);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            state.dinheiro = (isFinite(saved.dinheiro)) ? Number(saved.dinheiro) : 10;
+            state.gegp = (isFinite(saved.gegp)) ? Number(saved.gegp) : 0;
+            state.earnedSinceLastGEGP = (isFinite(saved.earnedSinceLastGEGP)) ? Number(saved.earnedSinceLastGEGP) : 0;
+            state.lastTick = (isFinite(saved.lastTick)) ? Number(saved.lastTick) : Date.now();
+            if (Array.isArray(saved.items)) {
+                saved.items.forEach(si => {
+                    const myI = state.items.find(i => i.id === si.id);
+                    if (myI) myI.qtd = Number(si.qtd) || 0;
+                });
+            }
+            if (Array.isArray(saved.skins)) {
+                saved.skins.forEach(ss => {
+                    const myS = state.skins.find(s => s.id === ss.id);
+                    if (myS) myS.qtd = Number(ss.qtd) || 0;
+                });
+            }
+            if (Array.isArray(saved.activeSupers)) state.activeSupers = saved.activeSupers.filter(s => s.expires > Date.now());
+            if (saved.stats) {
+                state.stats.totalPlayTimeSeconds = Number(saved.stats.totalPlayTimeSeconds) || 0;
+                state.stats.totalMoneyEarned = Number(saved.stats.totalMoneyEarned) || 0;
+                state.stats.totalGEGPEarned = Number(saved.stats.totalGEGPEarned) || 0;
+                state.stats.totalItemsBought = Number(saved.stats.totalItemsBought) || 0;
+            }
+          } catch (e) { state.lastTick = Date.now(); }
+        }
+
+        function save() {
+            try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...state, migrationMessage: null })); } catch (e) { }
+        }
+
+        function reset() { localStorage.removeItem(SAVE_KEY); location.reload(); }
+
+        function getAvatarHtml(nome, imageUrl = null) {
+            if (imageUrl) {
+                return `<div class="avatar" style="background: transparent;"><img src="${imageUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>`;
+            }
+            const hue = [...nome].reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360;
+            const inicial = nome.charAt(0).toUpperCase();
+            return `<div class="avatar" style="background: hsl(${hue}, 65%, 55%);">${inicial}</div>`;
+        }
+
+        const $money = document.getElementById('money');
+        const $rate  = document.getElementById('rate');
+        const $gegp = document.getElementById('gegp');
+        const $gegpRate = document.getElementById('gegpRate');
+        const $gegpBar = document.getElementById('gegpBar');
+        const $store = document.getElementById('store');
+        const $skinList = document.getElementById('skinList');
+        const $superList = document.getElementById('superList');
+        const $summary = document.getElementById('summary');
+        const $dateInfo = document.getElementById('dateInfo');
+        const $promoBadge = document.getElementById('promoBadge');
         
-        <div class="footer-note" style="margin-top:16px">O jogo agora foca em combos de Supers e Skins Lendárias/GEGP+ para maximizar a renda. 🐑</div>
-      </div>
-    </div>
-  </div>
+        const $btnComprarLoot = document.getElementById('btnComprarLoot');
+        const $btnComprarLootOvelha = document.getElementById('btnComprarLootOvelha');
+        const $btnComprarCaixaSuprema = document.getElementById('btnComprarCaixaSuprema');
 
-  <!-- Modal para Resetar Progresso -->
-  <div class="modal-overlay" id="resetModal">
-    <div class="modal">
-      <h3>Resetar Progresso</h3>
-      <p>Tem certeza que deseja resetar todo o seu progresso (Dinheiro, GEGP+, Personagens, Skins e Supers)? Esta ação não pode ser desfeita.</p>
-      <div class="modal-actions">
-        <button class="secondary" id="cancelResetBtn">Cancelar</button>
-        <button id="confirmResetBtn">Resetar</button>
-      </div>
-    </div>
-  </div>
+        $dateInfo.textContent = `Hoje: ${now.toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'})}`;
+        $promoBadge.style.display = promoGabrielActive ? 'inline-block' : 'none';
 
-  <!-- Modal para Estatísticas do Jogo -->
-  <div class="modal-overlay" id="statsModal">
-    <div class="modal">
-      <h3>Estatísticas do Jogo</h3>
-      <table class="stats-table">
-        <tr>
-          <th>Tempo Total de Jogo (online)</th>
-          <td id="statPlaytime">0s</td>
-        </tr>
-        <tr>
-          <th>Personagens Comprados (unidades)</th>
-          <td id="statItemsBought">0</td>
-        </tr>
-        <tr class="total-row">
-          <th>Dinheiro Total Ganho (R$)</th>
-          <td id="statMoneyEarned">R$ 0,00</td>
-        </tr>
-        <tr>
-          <th>GEGP+ Total Ganho</th>
-          <td id="statGEGPEarned">0</td>
-        </tr>
-      </table>
-      <p style="margin-top:20px; font-size: 0.85rem; color: #718096;"> As estatísticas são acumulativas e salvas no seu navegador, exceto o tempo que só é contado enquanto o jogo está aberto.</p>
-      <div class="modal-actions">
-        <button class="secondary" id="closeStatsBtn">Fechar</button>
-      </div>
-    </div>
-  </div>
+        function renderTop() {
+            $money.textContent = brl(state.dinheiro);
+            const rps = rendaPorSegundo(Date.now());
+            $rate.textContent = `+ ${brl(rps)} / s`;
+            $gegp.textContent = `GEGP+ ${fmt(state.gegp)}`;
+            $gegpRate.textContent = `R$ ${fmt(state.earnedSinceLastGEGP)} / 1.000`;
+            $gegpBar.style.width = `${Math.min(100, (state.earnedSinceLastGEGP / GEGP_RATE) * 100)}%`;
+            
+            // Controle dos Botões de Loot Box
+            $btnComprarLoot.disabled = state.dinheiro < PRECO_LOOT_BOX;
+            $btnComprarLoot.style.opacity = state.dinheiro < PRECO_LOOT_BOX ? '0.6' : '1';
+            
+            $btnComprarLootOvelha.disabled = state.dinheiro < PRECO_LOOT_OVELHA;
+            $btnComprarLootOvelha.style.opacity = state.dinheiro < PRECO_LOOT_OVELHA ? '0.6' : '1';
+            
+            $btnComprarCaixaSuprema.disabled = state.dinheiro < PRECO_CAIXA_SUPREMA;
+            $btnComprarCaixaSuprema.style.opacity = state.dinheiro < PRECO_CAIXA_SUPREMA ? '0.6' : '1';
+        }
 
-<!-- Link do JS externo -->
-<script src="/js/idle.js"></script>
+        function renderStore() {
+            $store.innerHTML = '';
+            state.items.forEach(item => {
+                const p = precoAtual(item);
+                const canBuy = isFinite(p) && state.dinheiro >= p;
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div class="item-content">
+                        ${getAvatarHtml(item.nome)}
+                        <div class="item-info">
+                            <span class="title">${item.nome}</span>
+                            <span class="meta">${item.desc}</span>
+                            <span class="meta">Renda: ${brl(item.renda)}/s</span>
+                            <span class="owned">Possui: ${fmt(item.qtd)}</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="comprar('${item.id}')" ${canBuy ? '' : 'disabled'}>Comprar<br>${brl(p)}</button>
+                `;
+                $store.appendChild(div);
+            });
+        }
+
+        function renderSkins() {
+            $skinList.innerHTML = '';
+            state.skins.forEach(skin => {
+                const jaTem = skin.qtd > 0;
+                const isGEGP = skin.rarity === 'GEGP+';
+                const preco = isGEGP ? skin.precoGEGP : skin.preco;
+                const pode = isGEGP ? state.gegp >= preco : state.dinheiro >= preco;
+                const div = document.createElement('div');
+                div.className = `item ${jaTem && isGEGP ? 'active-super' : ''}`;
+                div.innerHTML = `
+                    <div class="item-content">
+                        ${getAvatarHtml(skin.nome)}
+                        <div class="item-info">
+                            <span class="title">${skin.nome} <span class="rarity-badge rarity-${skin.rarity.replace('+','')}">${skin.rarity}</span></span>
+                            <span class="meta">${skin.desc}</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn ${isGEGP ? 'gegp-btn' : ''}" onclick="comprarSkin('${skin.id}')" ${!jaTem && pode ? '' : 'disabled'}>${jaTem ? (isGEGP ? 'Ativo Global' : 'Adquirido') : `Comprar<br>(${isGEGP ? preco+' GEGP' : brl(preco)})`}</button>
+                `;
+                $skinList.appendChild(div);
+            });
+        }
+
+        function renderSupers() {
+            $superList.innerHTML = '';
+            BUYABLE_SUPERS.forEach(sup => {
+                const ativo = state.activeSupers.find(s => s.id === sup.id);
+                const pode = !ativo && state.gegp >= sup.custoGEGP;
+                const div = document.createElement('div');
+                div.className = `item ${ativo ? 'active-super' : ''}`;
+                
+                let txtEfeito = "";
+                if(sup.type === 'gegp_multiplier') txtEfeito = `Gera 2X GEGP+`;
+                else if(sup.type === 'fixed') txtEfeito = `+${sup.efeitoRPS} RPS p/ unidade`;
+                else if(sup.type === 'percent_sheep_global') txtEfeito = `+50% RPS Ovelhas`;
+
+                div.innerHTML = `
+                    <div class="item-content">
+                        <div class="avatar" style="background: var(--secondary)">⚡</div>
+                        <div class="item-info">
+                            <span class="title">${sup.nome}</span>
+                            <span class="meta">Custo: ${sup.custoGEGP} GEGP+</span>
+                            <span class="meta" style="color:var(--secondary); font-weight:600;">Efeito: ${txtEfeito}</span>
+                            <span class="meta">${ativo ? 'Expirando em: '+fmtDuration((ativo.expires - Date.now())/1000) : 'Duração: 20 min'}</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn gegp-btn" onclick="ativarSuper('${sup.id}')" ${pode ? '' : 'disabled'}>${ativo ? 'ATIVO' : 'ATIVAR'}</button>
+                `;
+                $superList.appendChild(div);
+            });
+        }
+
+        function renderSummary() {
+            const totalItens = state.items.reduce((a,b) => a + (b.qtd||0), 0);
+            $summary.innerHTML = `Total Unidades: ${fmt(totalItens)} | Total Skins: ${state.skins.filter(s=>s.qtd>0).length}`;
+        }
+
+        function renderStatsModal() {
+            document.getElementById('statPlaytime').textContent = fmtDuration(state.stats.totalPlayTimeSeconds);
+            document.getElementById('statItemsBought').textContent = fmt(state.stats.totalItemsBought);
+            document.getElementById('statMoneyEarned').textContent = brl(state.stats.totalMoneyEarned);
+            document.getElementById('statGEGPEarned').textContent = fmt(state.stats.totalGEGPEarned);
+        }
+
+        function renderAll() { renderTop(); renderStore(); renderSkins(); renderSupers(); renderSummary(); }
+
+        load();
+        setInterval(() => { tick(); renderAll(); }, 100);
+        setInterval(save, 5000);
+
+        document.getElementById('saveBtn').onclick = save;
+        document.getElementById('resetBtn').onclick = () => document.getElementById('resetModal').classList.add('active');
+        document.getElementById('cancelResetBtn').onclick = () => document.getElementById('resetModal').classList.remove('active');
+        document.getElementById('confirmResetBtn').onclick = reset;
+        document.getElementById('statsBtn').onclick = () => { renderStatsModal(); document.getElementById('statsModal').classList.add('active'); };
+        document.getElementById('closeStatsBtn').onclick = () => document.getElementById('statsModal').classList.remove('active');
+        
+        // Eventos dos botões de Loot Box
+        $btnComprarLoot.onclick = abrirLootBox;
+        $btnComprarLootOvelha.onclick = abrirLootBoxOvelha;
+        $btnComprarCaixaSuprema.onclick = abrirCaixaSuprema;
+        document.getElementById('closeLootBtn').onclick = () => document.getElementById('lootModal').classList.remove('active');
+    </script>
 </body>
-</html>
+  </html>
