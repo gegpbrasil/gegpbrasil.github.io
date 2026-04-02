@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEGP Card Game-Rework</title>
+    <title>GEGP Card Game - Batalha Suprema</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Tema Marco Congelante */
+            /* Tema Marco Congelante / Batalha Suprema */
             --ice-primary: #00f7ff;
             --ice-dark: #001a2c;
             --bg-deep: #00050a;
@@ -69,6 +69,10 @@
 
         h2 { margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; color: #fff; text-shadow: 0 0 15px var(--ice-primary); }
         .sub-txt { color: #8ab; font-size: 0.8rem; margin-bottom: 25px; display: block; border-left: 2px solid var(--ice-primary); padding-left: 10px; }
+
+        /* TEXTO DE AVISO (NOVO) */
+        .warning-text { color: #ff0055; font-size: 0.8rem; font-weight: bold; text-align: center; margin: 15px 0 5px; animation: pulseWarning 1.5s infinite; text-transform: uppercase;}
+        @keyframes pulseWarning { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* GACHA CARD (3D) */
         .gacha-stage { width: 220px; height: 340px; margin: 10px auto 30px; perspective: 1000px; }
@@ -161,6 +165,19 @@
             text-align: center; padding: 20px; border: 1px dashed #444; border-radius: 10px; margin-top: 10px; color: #666; font-size: 0.8rem;
         }
 
+        /* MODAL CUSTOMIZADO (NOVO) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: #00101a; border: 1px solid var(--ice-primary); border-radius: 12px; padding: 25px; max-width: 85%; width: 350px; text-align: center; box-shadow: 0 0 30px rgba(0, 247, 255, 0.2); }
+        .modal-title { color: var(--ice-primary); margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.2rem; }
+        .modal-text { color: #ddd; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; }
+        .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+        .modal-btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; transition: 0.2s; flex: 1; }
+        .modal-btn.cancel { background: #222; color: #aaa; border: 1px solid #444; }
+        .modal-btn.cancel:active { background: #333; }
+        .modal-btn.ok { background: var(--ice-primary); color: #000; box-shadow: 0 0 15px rgba(0,247,255,0.4); }
+        .modal-btn.ok:active { transform: scale(0.95); }
+
     </style>
 </head>
 <body>
@@ -180,14 +197,14 @@
         <!-- SALÁRIO DIÁRIO -->
         <div id="dailyBox">
             <div>
-                <strong style="color:var(--ice-primary)">Recopensa diaria</strong>
+                <strong style="color:var(--ice-primary)">Recompensa diária</strong>
                 <div style="font-size:0.8rem; color:#aaa">Pagamento disponível!</div>
             </div>
             <button onclick="claimDaily()" style="background:var(--ice-primary); border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer">PEGAR 100</button>
         </div>
 
         <h2>Invocação</h2>
-        <span class="sub-txt">Temporada: Marco Congelante </span>
+        <span class="sub-txt">Temporada: Batalha Suprema</span>
 
         <div class="gacha-stage">
             <div class="card-wrap" id="mainCard">
@@ -227,13 +244,14 @@
             <button class="shop-buy-btn" style="border-color:var(--ice-primary); color:var(--ice-primary)" onclick="buyEnergy()">300 <i class="fas fa-bolt"></i></button>
         </div>
 
+        <div class="warning-text">⚠️ Último mês Heróis vs Vilões!</div>
         <div class="shop-item" style="border-color: var(--gold-legacy);">
             <div><strong style="color:var(--gold-legacy)"><i class="fas fa-box"></i> Pacote Retrô</strong><br><span style="font-size:0.7rem;color:#888">Carta Aleatória Passada</span></div>
             <button class="shop-buy-btn" style="border-color:var(--gold-legacy); color:var(--gold-legacy)" onclick="buyLegacyPack()">150 <i class="fas fa-bolt"></i></button>
         </div>
 
-        <!-- CARTAS MARCO CONGELANTE -->
-        <div class="shop-sec-title">Marco Congelante (Comuns)</div>
+        <!-- CARTAS MARCO CONGELANTE (REPRISE) -->
+        <div class="shop-sec-title">Batalha Suprema (Reprise Março)</div>
         <div id="shopList"></div>
     </div>
 
@@ -242,9 +260,9 @@
         <h2>Arquivos</h2>
         <span class="sub-txt">Toque na carta para baixar</span>
 
-        <!-- MARCO CONGELANTE -->
+        <!-- MARCO CONGELANTE / BATALHA SUPREMA -->
         <div class="coll-header">
-            <span>❄️ MARCO CONGELANTE</span>
+            <span>⚔️ BATALHA SUPREMA</span>
             <span id="progFrozen">0/0</span>
         </div>
         <div class="grid" id="gridFrozen"></div>
@@ -254,7 +272,8 @@
         </div>
 
         <!-- LEGACY -->
-        <div class="coll-header" style="border-color:var(--gold-legacy); margin-top: 40px;">
+        <div class="warning-text" style="margin-top: 40px;">⚠️ ÚLTIMO MÊS DA COLEÇÃO HERÓIS VS VILÕES! ⚠️</div>
+        <div class="coll-header" style="border-color:var(--gold-legacy); margin-top: 5px;">
             <span style="color:var(--gold-legacy)">📜 HERÓIS VS VILÕES</span>
             <span id="progLegacy">0/0</span>
         </div>
@@ -276,7 +295,74 @@
 
 </div>
 
+<!-- MODAL GLOBAL -->
+<div id="customModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="modalTitle" class="modal-title">Aviso</h3>
+        <p id="modalText" class="modal-text">Texto aqui</p>
+        <div class="modal-buttons">
+            <button id="modalBtnCancel" class="modal-btn cancel">Cancelar</button>
+            <button id="modalBtnOk" class="modal-btn ok">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // ==========================================
+    //       SISTEMA DE MODAL (UI SEGURA)
+    // ==========================================
+    function showMsg(title, text, onConfirm = null) {
+        const m = document.getElementById('customModal');
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalText').innerText = text;
+        const btnCancel = document.getElementById('modalBtnCancel');
+        const btnOk = document.getElementById('modalBtnOk');
+
+        // Configura botões dependendo se é uma confirmação ou apenas aviso
+        if (onConfirm) {
+            btnCancel.style.display = 'inline-block';
+            btnOk.innerText = "Confirmar";
+        } else {
+            btnCancel.style.display = 'none';
+            btnOk.innerText = "OK";
+        }
+
+        btnCancel.onclick = () => { m.classList.remove('active'); };
+        btnOk.onclick = () => {
+            m.classList.remove('active');
+            if (onConfirm) onConfirm();
+        };
+
+        m.classList.add('active');
+    }
+
+    // ==========================================
+    //   SEGURANÇA E ARMAZENAMENTO (ANTI-TAMPER)
+    // ==========================================
+    // Funções para salvar com codificação simples para evitar edições casuais no console
+    function safeSave(key, data) {
+        try {
+            const str = typeof data === 'object' ? JSON.stringify(data) : String(data);
+            const encoded = btoa(encodeURIComponent(str));
+            localStorage.setItem(key, encoded);
+        } catch (e) { console.error("Erro ao salvar.", e); }
+    }
+
+    function safeLoad(key, defaultVal) {
+        const val = localStorage.getItem(key);
+        if (!val) return defaultVal;
+        try {
+            // Tenta decodificar o novo formato base64
+            const decoded = decodeURIComponent(atob(val));
+            return typeof defaultVal === 'number' ? Number(decoded) : JSON.parse(decoded);
+        } catch(e) {
+            // Caso seja um save antigo antes da segurança ou corrompido
+            if(typeof defaultVal === 'number') return Number(val) || defaultVal;
+            try { return JSON.parse(val); } catch(e2) { return defaultVal; }
+        }
+    }
+
+
     // ==========================================
     //       CONFIGURAÇÃO & DADOS (DATABASE)
     // ==========================================
@@ -294,7 +380,7 @@
         }
     };
 
-    // 1. POOL MARCO CONGELANTE (TODAS COMUNS - FASE 1)
+    // 1. POOL MARCO CONGELANTE (TODAS COMUNS - Repetidas de Março)
     const FROZEN_POOL = [
         { id: "mc_smartu", name: "SMARTU", rarity: "Comum", icon: "🧠", dl: "https://www.mediafire.com/view/tt6rsggdxbbbgbo/SMARTU.png/file" },
         { id: "mc_mascarede", name: "Mascarede (MC)", rarity: "Comum", icon: "🎭", dl: "https://www.mediafire.com/view/10qo4j50m0gke7b/Masquerade_MC.png/file" },
@@ -321,10 +407,10 @@
     // ==========================================
 
     let state = {
-        coins: parseInt(localStorage.getItem(CONFIG.DB+'coins')) || 0,
-        lastSummon: parseInt(localStorage.getItem(CONFIG.DB+'lastSummon')) || 0,
-        lastDaily: parseInt(localStorage.getItem(CONFIG.DB+'lastDaily')) || 0,
-        inv: JSON.parse(localStorage.getItem(CONFIG.DB+'inv')) || []
+        coins: safeLoad(CONFIG.DB+'coins', 0),
+        lastSummon: safeLoad(CONFIG.DB+'lastSummon', 0),
+        lastDaily: safeLoad(CONFIG.DB+'lastDaily', 0),
+        inv: safeLoad(CONFIG.DB+'inv', [])
     };
 
     const ui = {
@@ -335,10 +421,10 @@
     };
 
     function save() {
-        localStorage.setItem(CONFIG.DB+'coins', state.coins);
-        localStorage.setItem(CONFIG.DB+'lastSummon', state.lastSummon);
-        localStorage.setItem(CONFIG.DB+'lastDaily', state.lastDaily);
-        localStorage.setItem(CONFIG.DB+'inv', JSON.stringify(state.inv));
+        safeSave(CONFIG.DB+'coins', state.coins);
+        safeSave(CONFIG.DB+'lastSummon', state.lastSummon);
+        safeSave(CONFIG.DB+'lastDaily', state.lastDaily);
+        safeSave(CONFIG.DB+'inv', state.inv);
         updateUI();
     }
 
@@ -364,7 +450,7 @@
         state.coins += CONFIG.DAILY_PAY;
         state.lastDaily = Date.now();
         save();
-        alert(`💰 Salário recebido: +${CONFIG.DAILY_PAY} GEGP+`);
+        showMsg("Pagamento Realizado", `💰 Salário recebido: +${CONFIG.DAILY_PAY} GEGP+`);
     };
 
     // --- SUMMON SYSTEM ---
@@ -421,31 +507,36 @@
 
     // --- SHOP ---
     window.buyEnergy = () => {
-        if(state.coins < 300) return alert("Falta GEGP+!");
-        state.coins -= 300;
-        state.lastSummon = 0;
-        save();
-        alert("Energia Térmica Restaurada!");
-        nav('home', document.querySelector('.nav-icon'));
+        if(state.coins < 300) return showMsg("Falha", "Você não tem GEGP+ suficiente para isso!");
+        
+        showMsg("Atenção", "Gostaria de gastar 300 GEGP+ para zerar o tempo de espera agora mesmo?", () => {
+            state.coins -= 300;
+            state.lastSummon = 0;
+            save();
+            showMsg("Sucesso", "Energia Térmica Restaurada! Você já pode invocar novamente.");
+            nav('home', document.querySelector('.nav-icon'));
+        });
     };
 
     window.buyLegacyPack = () => {
-        if(state.coins < 150) return alert("Falta GEGP+!");
+        if(state.coins < 150) return showMsg("Falha", "Falta GEGP+ para este pacote!");
         
-        const card = LEGACY_POOL[Math.floor(Math.random() * LEGACY_POOL.length)];
-        state.coins -= 150;
-        state.coins += CONFIG.PACK_BONUS; // Devolve o bônus de abrir
-        
-        let msg = "";
-        if(!state.inv.includes(card.id)) {
-            state.inv.push(card.id);
-            msg = `🎉 Nova carta clássica: ${card.name}!`;
-        } else {
-            state.coins += 50;
-            msg = `♻️ Repetida (${card.name}). Reembolso: +50 GEGP+`;
-        }
-        alert(msg);
-        save();
+        showMsg("Comprar Pacote", "Deseja comprar o Pacote Retrô por 150 GEGP+?", () => {
+            const card = LEGACY_POOL[Math.floor(Math.random() * LEGACY_POOL.length)];
+            state.coins -= 150;
+            state.coins += CONFIG.PACK_BONUS; // Devolve o bônus de abrir
+            
+            let msg = "";
+            if(!state.inv.includes(card.id)) {
+                state.inv.push(card.id);
+                msg = `🎉 Nova carta clássica: ${card.name}!`;
+            } else {
+                state.coins += 50;
+                msg = `♻️ Repetida (${card.name}). Reembolso: +50 GEGP+`;
+            }
+            save();
+            showMsg("Resultado", msg);
+        });
     };
 
     function renderShopList() {
@@ -476,13 +567,14 @@
     }
 
     window.buySingle = (id, price) => {
-        if(state.coins < price) return alert("GEGP+ Insuficiente!");
-        if(confirm(`Comprar carta por ${price} GEGP+?`)) {
+        if(state.coins < price) return showMsg("Aviso", "GEGP+ Insuficiente para essa carta!");
+        
+        showMsg("Confirmação", `Deseja comprar essa carta diretamente por ${price} GEGP+?`, () => {
             state.coins -= price;
             state.inv.push(id);
             save();
-            alert("Compra realizada!");
-        }
+            showMsg("Sucesso", "Compra realizada com sucesso!");
+        });
     };
 
     // --- COLLECTION RENDER ---
@@ -530,6 +622,22 @@
         document.querySelectorAll('.nav-icon').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
     };
+
+    // ==========================================
+    //       AVISOS DE PAUSA (BEM-ESTAR)
+    // ==========================================
+    // Aviso inicial de segurança
+    setTimeout(() => {
+        showMsg("Bem-estar & Segurança", "Bem-vindo à Temporada Batalha Suprema! Lembre-se: O sistema avisará sobre pausas regulares a cada 20 minutos para proteger sua visão e garantir uma jogatina saudável.");
+    }, 1500);
+
+    // Sistema recorrente de alerta a cada 20 minutos
+    setInterval(() => {
+        showMsg(
+            "Hora da Pausa! ⏱️", 
+            "Você já está jogando há um bom tempo. Recomendamos fazer uma pausa de 10 minutos: descanse os olhos, beba água e alongue-se!"
+        );
+    }, 20 * 60 * 1000); // 20 Minutos
 
     // START
     updateUI();
