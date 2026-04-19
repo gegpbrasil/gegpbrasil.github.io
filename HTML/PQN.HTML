@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parque de Diversões do Não Quero</title>
+    <style>
+        /* === ESTILOS GERAIS (TEMA CINZA E AMARELO) === */
+        :root {
+            --cinza-escuro: #2b2b2b;
+            --cinza-medio: #4a4a4a;
+            --cinza-claro: #cfcfcf;
+            --amarelo-forte: #ffcc00;
+            --amarelo-hover: #e6b800;
+            --texto-claro: #f5f5f5;
+            --vermelho-alerta: #ff4444;
+            --verde-cura: #00C851;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cinza-escuro);
+            color: var(--texto-claro);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            max-height: 800px;
+            background-color: var(--cinza-medio);
+            border: 4px solid var(--amarelo-forte);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1, h2, h3 {
+            color: var(--amarelo-forte);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-top: 0;
+        }
+
+        button {
+            background-color: var(--amarelo-forte);
+            color: var(--cinza-escuro);
+            border: none;
+            padding: 12px 15px;
+            margin: 8px 0;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        button:hover { background-color: var(--amarelo-hover); transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background-color: #666; color: #999; cursor: not-allowed; transform: none; }
+
+        /* === COMPONENTES GERAIS === */
+        .progress-container {
+            width: 100%;
+            background: var(--cinza-escuro);
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid var(--cinza-claro);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 15px;
+            background: var(--amarelo-forte);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            font-size: 11px;
+            color: var(--cinza-escuro);
+            font-weight: bold;
+            line-height: 15px;
+        }
+
+        /* === TELA DE MENU === */
+        #menu-screen { align-items: center; }
+        
+        .stats-box {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid var(--amarelo-forte);
+            width: 90%;
+            font-size: 14px;
+        }
+        
+        .stats-box p { margin: 5px 0; display: flex; justify-content: space-between; }
+        .stats-box span { font-weight: bold; color: var(--amarelo-forte); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 90%;
+        }
+
+        /* === TELA DE HISTÓRIA === */
+        #story-box {
+            flex-grow: 1;
+            background: var(--cinza-escuro);
+            border: 2px solid var(--cinza-claro);
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            display: none;
+            border: 2px solid var(--amarelo-forte);
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        /* === TELA DE BATALHA === */
+        .battle-hud {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--amarelo-forte);
+        }
+
+        .fighter { width: 45%; text-align: center; }
+
+        .hp-bar-bg {
+            width: 100%; height: 15px;
+            background: var(--cinza-escuro);
+            border: 1px solid var(--cinza-claro);
+            border-radius: 8px; overflow: hidden; margin-top: 5px;
+        }
+
+        .hp-bar-fill {
+            height: 100%; background: var(--amarelo-forte);
+            width: 100%; transition: width 0.3s ease;
+        }
+        .enemy-hp-fill { background: var(--vermelho-alerta); }
+
+        #battle-log {
+            height: 120px;
+            background: var(--cinza-escuro);
+            padding: 10px; border-radius: 5px;
+            overflow-y: auto; font-family: monospace;
+            margin-bottom: 10px; border: 1px dashed var(--amarelo-forte);
+            font-size: 13px;
+        }
+
+        #battle-log p { margin: 3px 0; }
+        .log-dano { color: var(--amarelo-forte); }
+        .log-cura { color: var(--verde-cura); }
+        .log-alerta { color: var(--vermelho-alerta); font-weight: bold; }
+
+        .battle-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .attacks-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .btn-heal { background-color: var(--verde-cura); color: white; }
+        .btn-heal:hover { background-color: #009933; }
+        .btn-skip { background-color: #9933cc; color: white; display: none; }
+
+        .btn-stanalita { background-color: #8a2be2; color: white; }
+        .btn-stanalita:hover { background-color: #7b1fa2; }
+        
+        .btn-super {
+            background: linear-gradient(45deg, #ff0000, #ff8c00);
+            color: white; font-size: 16px; text-shadow: 1px 1px 2px black;
+            border: 2px solid #fff; animation: pulsar 1s infinite alternate;
+            margin-bottom: 10px; display: none;
+        }
+        @keyframes pulsar {
+            from { transform: scale(1); box-shadow: 0 0 5px #ff0000; }
+            to { transform: scale(1.02); box-shadow: 0 0 15px #ff8c00; }
+        }
+
+        /* === MODAIS (Substitutos de Alert/Confirm) === */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        
+        .modal-box {
+            background: var(--cinza-medio); border: 2px solid var(--amarelo-forte);
+            padding: 20px; border-radius: 10px; width: 80%; text-align: center;
+            box-shadow: 0 0 15px #000;
+        }
+
+        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-danger { background-color: var(--vermelho-alerta); color: white; }
+
+        .char-select-list {
+            max-height: 200px; overflow-y: auto; text-align: left;
+            background: var(--cinza-escuro); padding: 5px; border-radius: 5px;
+        }
+        .char-item {
+            padding: 10px; border-bottom: 1px solid #444; cursor: pointer;
+        }
+        .char-item:hover { background: var(--cinza-medio); color: var(--amarelo-forte); }
+        
+        /* Tooltip customizado via title nativo geralmente é suficiente, mas os botões estão padronizados */
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    
+    <!-- TELA 1: MENU PRINCIPAL -->
+    <div id="menu-screen" class="screen active">
+        <h1>Parque do Não Quero</h1>
+        
+        <div style="width: 90%;">
+            <p style="margin: 0 0 5px 0; font-size: 12px;">Progresso da História:</p>
+            <div class="progress-container">
+                <div id="story-progress" class="progress-bar"></div>
+                <div id="story-progress-text" class="progress-text">0%</div>
+            </div>
+        </div>
+
+        <div class="stats-box">
+            <p>Nível: <span id="menu-level">1</span></p>
+            <p>XP: <span id="menu-xp">0</span> / <span id="menu-next-xp">100</span></p>
+            <p>Personagens: <span id="menu-chars">1</span></p>
+            <p>Vitórias: <span id="menu-wins">0</span></p>
+            <p>Poções: <span id="menu-potions">5</span> 🧪</p>
+            <p>Moedas: <span id="menu-coins">0</span> 🪙</p>
+            <p style="color: #cc00ff;">Stanalitas: <span id="menu-stanalitas">0</span> 💎</p>
+            <p style="margin-top: 10px; border-top: 1px dashed var(--amarelo-forte); padding-top: 5px;">
+                Lutador Atual: <span id="menu-active-char">Não Quero</span>
+            </p>
+        </div>
+
+        <div class="menu-grid">
+            <button onclick="iniciarJogo()">Continuar História</button>
+            <button onclick="iniciarTreino()" style="background-color: #33b5e5;">Modo Treino</button>
+            <button onclick="abrirLoja()" style="background-color: #8a2be2; color: white;">Loja de Itens</button>
+            <button onclick="abrirSelecaoPersonagem(false)">Trocar Lutador</button>
+            <button onclick="confirmarReset()" class="btn-danger">Apagar Save</button>
+        </div>
+        <p style="font-size: 12px; text-align: center; margin-top: auto; color: var(--amarelo-forte);">GEGP © 2026</p>
+    </div>
+
+    <!-- TELA 2: HISTÓRIA -->
+    <div id="story-screen" class="screen">
+        <h2 id="story-title">História</h2>
+        <div id="video-area" class="video-container">
+            <!-- Iframe do Youtube será injetado aqui -->
+        </div>
+        <div id="story-box">Texto da história vai aqui...</div>
+        <button id="story-next-btn" onclick="avancarHistoria()">Continuar</button>
+        <button onclick="mostrarTela('menu-screen')" style="background-color: var(--cinza-claro); color: black;">Voltar ao Menu</button>
+    </div>
+
+    <!-- TELA 3: BATALHA -->
+    <div id="battle-screen" class="screen">
+        <h2 id="battle-title">Batalha!</h2>
+        
+        <div class="battle-hud">
+            <div class="fighter">
+                <strong id="player-name" style="color: var(--amarelo-forte);">Não Quero</strong>
+                <div class="hp-bar-bg"><div id="player-hp" class="hp-bar-fill"></div></div>
+                <small id="player-hp-text">100/100</small>
+            </div>
+            <div class="fighter">
+                <strong id="enemy-name" style="color: #ff4444;">Inimigo</strong>
+                <div class="hp-bar-bg"><div id="enemy-hp" class="hp-bar-fill enemy-hp-fill"></div></div>
+                <small id="enemy-hp-text">100/100</small>
+            </div>
+        </div>
+        
+        <div id="battle-log"></div>
+        
+        <div class="battle-actions">
+            <button onclick="usarPocao()" class="btn-heal" id="btn-heal" title="Recupera 50% de HP. Gasta 1 turno.">Usar Poção (🧪<span id="battle-potions">0</span>)</button>
+            <button onclick="usarStanalita()" class="btn-stanalita" id="btn-stanalita" title="Cura 50 HP e +50% de Dano! Gasta 1 turno.">Stanalita (💎<span id="battle-stanalitas">0</span>)</button>
+            <button onclick="abrirSelecaoPersonagem(true)" id="btn-swap" title="Troca de lutador. Gasta 1 turno.">Trocar Lutador</button>
+            <button onclick="pularBatalha()" id="btn-skip" class="btn-skip">Pular Batalha</button>
+        </div>
+
+        <button onclick="usarSuper()" id="btn-super" class="btn-super">🔥 SUPER ATAQUE 🔥</button>
+
+        <div class="attacks-grid" id="attack-buttons">
+            <!-- Botões gerados via JS -->
+        </div>
+    </div>
+
+    <!-- MODAL DE MENSAGEM GENÉRICA -->
+    <div id="modal-msg" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-msg-title">Aviso</h3>
+            <p id="modal-msg-text">Mensagem...</p>
+            <button onclick="fecharModal('modal-msg')" id="modal-msg-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO -->
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-confirm-title">Atenção</h3>
+            <p id="modal-confirm-text">Tem certeza?</p>
+            <div class="modal-buttons">
+                <button id="modal-confirm-yes" class="btn-danger">Sim</button>
+                <button onclick="fecharModal('modal-confirm')">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SELEÇÃO DE PERSONAGEM -->
+    <div id="modal-char" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Escolha seu Lutador</h3>
+            <div id="char-list" class="char-select-list">
+                <!-- Lista injetada via JS -->
+            </div>
+            <button onclick="fecharModal('modal-char')" style="margin-top: 10px;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DA LOJA -->
+    <div id="modal-shop" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Loja de Itens</h3>
+            <p>Suas Moedas: <span id="shop-coins">0</span> 🪙</p>
+            <div style="background: var(--cinza-escuro); padding: 15px; border-radius: 5px; margin-bottom: 10px; text-align: left; border: 1px solid #cc00ff;">
+                <h4 style="margin: 0; color: #cc00ff;">Stanalita 💎</h4>
+                <p style="font-size: 13px; margin: 5px 0;">Cura 50 HP e aumenta o dano em 50% pelo resto da batalha! Você fica com o visual roxo!</p>
+                <button onclick="comprarStanalita()" style="background: #cc00ff; color: white; margin-top: 10px;">Comprar (50 🪙)</button>
+            </div>
+            <button onclick="fecharModal('modal-shop')">Sair da Loja</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* =========================================================================
+       BANCO DE DADOS DO JOGO
+       ========================================================================= */
+
+    const BANCO_PERSONAGENS = {
+        "nao_quero": {
+            id: "nao_quero", nome: "Não Quero", familia: "Família Negativo I", hpBase: 100,
+            super: { nome: "Fúria do Não Quero", dano: 60 },
+            ataques: [
+                { nome: "Chute de Birra", dano: 25 },
+                { nome: "Grito Estridente", dano: 20 },
+                { nome: "Ignorar Tudo", dano: 10 },
+                { nome: "Explosão de Raiva", dano: 35 }
+            ]
+        },
+        "energia_estatica": {
+            id: "energia_estatica", nome: "Energia Estática", familia: "Família Negativo I", hpBase: 120,
+            super: { nome: "Tempestade Elétrica", dano: 75 },
+            ataques: [
+                { nome: "Choque Leve", dano: 15 },
+                { nome: "Faísca Cega", dano: 18 },
+                { nome: "Curto Circuito", dano: 25 },
+                { nome: "Carga Máxima", dano: 30 }
+            ]
+        },
+        "mestre_caos": { 
+            id: "mestre_caos", nome: "Mestre do Caos", familia: "Nenhuma", hpBase: 140, 
+            super: { nome: "Caos Absoluto", dano: 85 },
+            ataques: [{nome: "Desordem", dano: 20}, {nome: "Confusão", dano: 22}, {nome: "Troca", dano: 25}, {nome: "Tempestade", dano: 35}] 
+        },
+        "multiverso": {
+            id: "multiverso", nome: "Multiverso", familia: "Ancestrais", hpBase: 250,
+            super: { nome: "Colapso Universal", dano: 120 },
+            ataques: [
+                { nome: "Fenda Espacial", dano: 30 },
+                { nome: "Colisão", dano: 40 },
+                { nome: "Apagar", dano: 50 },
+                { nome: "Big Bang", dano: 65 }
+            ]
+        }
+    };
+
+    // Suporta 'texto', 'video' (com ytId), 'batalha'
+    const HISTORIA = [
+        { tipo: "texto", conteudo: "Você nasceu... Você é o filho do Ancestral, pertencente à Família Negativo I. Seu nome é 'Não Quero'." },
+        { tipo: "video", ytId: "dQw4w9WgXcQ", conteudo: "Abertura do Parque" }, // Usando Rick Roll como placeholder inofensivo
+        { tipo: "texto", conteudo: "Seu objetivo é ser treinado pelos outros membros da aliança. Sua primeira oponente é a Energia Estática!" },
+        { tipo: "batalha", inimigo: "energia_estatica", xpGanho: 50 },
+        { tipo: "texto", conteudo: "Muito bem! Você a derrotou. Ao vencer inimigos na história, você os desbloqueia para usar no seu time!" },
+        { tipo: "texto", conteudo: "De repente, o ambiente distorce. O Mestre do Caos aparece para testar suas habilidades recém-adquiridas." },
+        { tipo: "batalha", inimigo: "mestre_caos", xpGanho: 80 },
+        { tipo: "texto", conteudo: "Chegou a hora do teste final da Fase 1. Uma Batalha Treino contra o seu criador... O Ancestral Multiverso!" },
+        { tipo: "batalha", inimigo: "multiverso", xpGanho: 200 }, 
+        { tipo: "texto", conteudo: "Multiverso: 'Impressionante... Você despertou seu poder. Com a palavra NÃO QUERO, você pode fazer o que quiser neste universo.'" },
+        { tipo: "texto", conteudo: "FIM DA DEMO.\n\nContinue treinando no Modo Treino para subir de nível e junte poções!" }
+    ];
+
+    /* =========================================================================
+       SISTEMA DE SAVE E VARIÁVEIS DO JOGO
+       ========================================================================= */
+    let progresso = {
+        passoHistoria: 0,
+        nivel: 1,
+        xp: 0,
+        personagensDesbloqueados: ["nao_quero"],
+        lutadorAtivo: "nao_quero",
+        pocoes: 5,
+        vitorias: 0,
+        derrotasNoPassoAtual: 0, // Usado para o botão "Pular Batalha"
+        moedas: 0,
+        stanalitas: 0
+    };
+
+    let batalhaAtual = {
+        isTreino: false,
+        jogadorHp: 0, jogadorMaxHp: 0,
+        inimigoId: "", inimigoHp: 0, inimigoMaxHp: 0,
+        turnoJogador: true,
+        stanalitaAtiva: false
+    };
+
+    let callbackAposModalMsg = null;
+
+    function carregarSave() {
+        const saveSalvo = localStorage.getItem("parque_nao_quero_save_v2");
+        if (saveSalvo) {
+            progresso = Object.assign(progresso, JSON.parse(saveSalvo));
+        }
+        atualizarMenu();
+    }
+
+    function salvarJogo() {
+        localStorage.setItem("parque_nao_quero_save_v2", JSON.stringify(progresso));
+        atualizarMenu();
+    }
+
+    function confirmarReset() {
+        mostrarConfirmacao("Tem certeza que quer apagar seu progresso? Isso não pode ser desfeito.", () => {
+            localStorage.removeItem("parque_nao_quero_save_v2");
+            location.reload();
+        });
+    }
+
+    /* =========================================================================
+       MODAIS CUSTOMIZADOS (Sem alert/confirm)
+       ========================================================================= */
+    function mostrarMensagem(texto, titulo = "Aviso", callback = null) {
+        document.getElementById("modal-msg-title").innerText = titulo;
+        document.getElementById("modal-msg-text").innerText = texto;
+        document.getElementById("modal-msg").style.display = "flex";
+        callbackAposModalMsg = callback;
+    }
+
+    function mostrarConfirmacao(texto, callbackSim) {
+        document.getElementById("modal-confirm-text").innerText = texto;
+        document.getElementById("modal-confirm").style.display = "flex";
+        document.getElementById("modal-confirm-yes").onclick = () => {
+            fecharModal("modal-confirm");
+            if(callbackSim) callbackSim();
+        };
+    }
+
+    function fecharModal(id) {
+        document.getElementById(id).style.display = "none";
+        if (id === 'modal-msg' && callbackAposModalMsg) {
+            let cb = callbackAposModalMsg;
+            callbackAposModalMsg = null;
+            cb();
+        }
+    }
+
+    /* =========================================================================
+       CONTROLE DE TELAS
+       ========================================================================= */
+    function mostrarTela(idTela) {
+        document.querySelectorAll('.screen').forEach(tela => tela.classList.remove('active'));
+        document.getElementById(idTela).classList.add('active');
+    }
+
+    function atualizarMenu() {
+        document.getElementById("menu-level").innerText = progresso.nivel;
+        document.getElementById("menu-xp").innerText = progresso.xp;
+        document.getElementById("menu-next-xp").innerText = progresso.nivel * 100;
+        document.getElementById("menu-chars").innerText = progresso.personagensDesbloqueados.length;
+        document.getElementById("menu-wins").innerText = progresso.vitorias;
+        document.getElementById("menu-potions").innerText = progresso.pocoes;
+        document.getElementById("menu-coins").innerText = progresso.moedas || 0;
+        document.getElementById("menu-stanalitas").innerText = progresso.stanalitas || 0;
+        
+        const charAtivo = BANCO_PERSONAGENS[progresso.lutadorAtivo];
+        document.getElementById("menu-active-char").innerText = charAtivo ? charAtivo.nome : "Desconhecido";
+
+        // Barra de progresso da história
+        const pctHistoria = Math.min(100, Math.floor((progresso.passoHistoria / HISTORIA.length) * 100));
+        document.getElementById("story-progress").style.width = pctHistoria + "%";
+        document.getElementById("story-progress-text").innerText = pctHistoria + "% da História Concluída";
+    }
+
+    /* =========================================================================
+       SELEÇÃO DE PERSONAGEM (MENU E BATALHA)
+       ========================================================================= */
+    let trocandoNaBatalha = false;
+
+    function abrirSelecaoPersonagem(emBatalha) {
+        trocandoNaBatalha = emBatalha;
+        const lista = document.getElementById("char-list");
+        lista.innerHTML = "";
+
+        progresso.personagensDesbloqueados.forEach(id => {
+            const char = BANCO_PERSONAGENS[id];
+            const div = document.createElement("div");
+            div.className = "char-item";
+            
+            let texto = `<strong>${char.nome}</strong><br><small>Família: ${char.familia} | HP: ${char.hpBase}</small>`;
+            if (id === progresso.lutadorAtivo) {
+                texto += " <em>(Atual)</em>";
+                div.style.borderLeft = "4px solid var(--amarelo-forte)";
+            }
+            
+            div.innerHTML = texto;
+            div.onclick = () => selecionarPersonagem(id);
+            lista.appendChild(div);
+        });
+
+        document.getElementById("modal-char").style.display = "flex";
+    }
+
+    function selecionarPersonagem(id) {
+        fecharModal('modal-char');
+        
+        if (id === progresso.lutadorAtivo) return; // Não faz nada se for o mesmo
+
+        progresso.lutadorAtivo = id;
+        salvarJogo();
+
+        if (trocandoNaBatalha) {
+            // Lógica de troca no meio da batalha (Mantém a proporção de HP)
+            const pctHp = batalhaAtual.jogadorHp / batalhaAtual.jogadorMaxHp;
+            prepararJogadorBatalha(); 
+            batalhaAtual.jogadorHp = Math.max(1, Math.floor(batalhaAtual.jogadorMaxHp * pctHp));
+            
+            logBatalha(`Você trocou para <span class="log-cura">${BANCO_PERSONAGENS[id].nome}</span>!`, true);
+            atualizarBarras();
+            
+            // Trocar consome o turno
+            batalhaAtual.turnoJogador = false;
+            alternarBotoesAtaque(false);
+            setTimeout(inimigoAtaca, 1500);
+        } else {
+            mostrarMensagem(`Lutador alterado para ${BANCO_PERSONAGENS[id].nome}!`, "Sucesso");
+        }
+    }
+
+    /* =========================================================================
+       SISTEMA DA LOJA
+       ========================================================================= */
+    function abrirLoja() {
+        document.getElementById("shop-coins").innerText = progresso.moedas || 0;
+        document.getElementById("modal-shop").style.display = "flex";
+    }
+
+    function comprarStanalita() {
+        if ((progresso.moedas || 0) >= 50) {
+            progresso.moedas -= 50;
+            progresso.stanalitas = (progresso.stanalitas || 0) + 1;
+            salvarJogo();
+            document.getElementById("shop-coins").innerText = progresso.moedas;
+            mostrarMensagem("Você comprou 1x Stanalita com sucesso!", "Compra Realizada");
+        } else {
+            mostrarMensagem("Você não tem Moedas suficientes. Vença batalhas para conseguir mais!", "Aviso");
+        }
+    }
+
+    /* =========================================================================
+       SISTEMA DE HISTÓRIA E TREINO
+       ========================================================================= */
+    function iniciarJogo() {
+        if (progresso.passoHistoria >= HISTORIA.length) {
+            mostrarMensagem("Você já completou a história disponível. Jogue o modo treino!", "Fim da Demo");
+            return;
+        }
+        lerPassoHistoria();
+    }
+
+    function iniciarTreino() {
+        if (progresso.personagensDesbloqueados.length === 0) return;
+        
+        // Pega um inimigo aleatório dentre os desbloqueados
+        const randomId = progresso.personagensDesbloqueados[Math.floor(Math.random() * progresso.personagensDesbloqueados.length)];
+        
+        batalhaAtual.isTreino = true;
+        iniciarBatalha(randomId);
+    }
+
+    function lerPassoHistoria() {
+        batalhaAtual.isTreino = false;
+        const passo = HISTORIA[progresso.passoHistoria];
+        
+        if (!passo) return;
+
+        const btnNext = document.getElementById("story-next-btn");
+        const videoArea = document.getElementById("video-area");
+        const storyBox = document.getElementById("story-box");
+
+        mostrarTela('story-screen');
+        videoArea.style.display = "none";
+        videoArea.innerHTML = ""; // Limpa iframe
+        storyBox.style.display = "block";
+        btnNext.innerText = "Continuar";
+        document.getElementById("story-title").innerText = `Capítulo ${progresso.passoHistoria + 1}`;
+
+        if (passo.tipo === "texto") {
+            storyBox.innerText = passo.conteudo;
+        } 
+        else if (passo.tipo === "video") {
+            storyBox.style.display = "none";
+            videoArea.style.display = "block";
+            videoArea.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${passo.ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            btnNext.innerText = "Pular Vídeo";
+        } 
+        else if (passo.tipo === "batalha") {
+            iniciarBatalha(passo.inimigo);
+        }
+    }
+
+    function avancarHistoria() {
+        progresso.derrotasNoPassoAtual = 0; // Reseta contador de pular batalha
+        progresso.passoHistoria++;
+        salvarJogo();
+        if (progresso.passoHistoria >= HISTORIA.length) {
+            mostrarMensagem("Você concluiu tudo! Retornando ao menu.", "Fim", () => mostrarTela('menu-screen'));
+        } else {
+            lerPassoHistoria();
+        }
+    }
+
+    /* =========================================================================
+       SISTEMA DE BATALHA
+       ========================================================================= */
+    function logBatalha(mensagem, isHTML = false) {
+        const log = document.getElementById("battle-log");
+        log.innerHTML += `<p>> ${isHTML ? mensagem : mensagem}</p>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function atualizarBarras() {
+        const pPerc = Math.max(0, (batalhaAtual.jogadorHp / batalhaAtual.jogadorMaxHp) * 100);
+        const ePerc = Math.max(0, (batalhaAtual.inimigoHp / batalhaAtual.inimigoMaxHp) * 100);
+        
+        document.getElementById("player-hp").style.width = pPerc + "%";
+        document.getElementById("player-hp-text").innerText = `${batalhaAtual.jogadorHp}/${batalhaAtual.jogadorMaxHp}`;
+        
+        document.getElementById("enemy-hp").style.width = ePerc + "%";
+        document.getElementById("enemy-hp-text").innerText = `${batalhaAtual.inimigoHp}/${batalhaAtual.inimigoMaxHp}`;
+        
+        document.getElementById("battle-potions").innerText = progresso.pocoes;
+        document.getElementById("battle-stanalitas").innerText = progresso.stanalitas || 0;
+    }
+
+    function prepararJogadorBatalha() {
+        const jogador = BANCO_PERSONAGENS[progresso.lutadorAtivo];
+        const multiplicadorNivel = 1 + ((progresso.nivel - 1) * 0.2);
+        batalhaAtual.jogadorMaxHp = Math.floor(jogador.hpBase * multiplicadorNivel);
+        document.getElementById("player-name").innerText = jogador.nome + ` (Nv.${progresso.nivel})`;
+        
+        // Gerar Botões de Ataque
+        const gridAtaques = document.getElementById("attack-buttons");
+        gridAtaques.innerHTML = "";
+        
+        jogador.ataques.forEach((atk, index) => {
+            const danoEst = Math.floor(atk.dano * (1 + ((progresso.nivel-1) * 0.15)));
+            const btn = document.createElement("button");
+            btn.innerText = atk.nome;
+            btn.title = `Dano base estimado: ${danoEst}`; // Tooltip
+            btn.onclick = () => jogadorAtaca(index);
+            gridAtaques.appendChild(btn);
+        });
+    }
+
+    function iniciarBatalha(inimigoId) {
+        mostrarTela('battle-screen');
+        document.getElementById("battle-log").innerHTML = "";
+        
+        document.getElementById("battle-title").innerText = batalhaAtual.isTreino ? "Modo Treino" : "Batalha da História";
+        
+        // Reseta status da Stanalita ao iniciar nova batalha
+        batalhaAtual.stanalitaAtiva = false;
+        document.getElementById("player-name").style.color = "var(--amarelo-forte)";
+        document.getElementById("player-hp").style.backgroundColor = "var(--amarelo-forte)";
+
+        const inimigo = BANCO_PERSONAGENS[inimigoId];
+        
+        prepararJogadorBatalha();
+        batalhaAtual.jogadorHp = batalhaAtual.jogadorMaxHp; // Restaura HP completo no início
+        
+        batalhaAtual.inimigoId = inimigoId;
+        // Inimigos na história são fixos, no treino escalam um pouco com seu nível
+        let multInimigo = batalhaAtual.isTreino ? (1 + ((progresso.nivel-1) * 0.15)) : 1;
+        batalhaAtual.inimigoMaxHp = Math.floor(inimigo.hpBase * multInimigo); 
+        batalhaAtual.inimigoHp = batalhaAtual.inimigoMaxHp;
+        
+        batalhaAtual.turnoJogador = true;
+        document.getElementById("enemy-name").innerText = inimigo.nome;
+
+        // Lógica de "Pular Batalha"
+        const btnSkip = document.getElementById("btn-skip");
+        if (!batalhaAtual.isTreino && progresso.derrotasNoPassoAtual >= 2) {
+            btnSkip.style.display = "block";
+        } else {
+            btnSkip.style.display = "none";
+        }
+
+        atualizarBarras();
+        alternarBotoesAtaque(true);
+        logBatalha(`Um <strong style="color:#ff4444">${inimigo.nome}</strong> apareceu!`, true);
+    }
+
+    function alternarBotoesAtaque(ativar) {
+        const botoes = document.getElementById("attack-buttons").getElementsByTagName("button");
+        for(let b of botoes) { b.disabled = !ativar; }
+        document.getElementById("btn-heal").disabled = (!ativar || progresso.pocoes <= 0);
+        document.getElementById("btn-stanalita").disabled = (!ativar || (progresso.stanalitas || 0) <= 0);
+        document.getElementById("btn-swap").disabled = !ativar;
+        
+        // Lógica de 30% de chance para o Super Ataque
+        const btnSuper = document.getElementById("btn-super");
+        if (ativar) {
+            if (Math.random() <= 0.30) {
+                btnSuper.style.display = "block";
+                btnSuper.disabled = false;
+            } else {
+                btnSuper.style.display = "none";
+            }
+        } else {
+            btnSuper.disabled = true;
+        }
+    }
+
+    function usarPocao() {
+        if (!batalhaAtual.turnoJogador || progresso.pocoes <= 0) return;
+        
+        progresso.pocoes--;
+        const cura = Math.floor(batalhaAtual.jogadorMaxHp * 0.5); // Cura 50%
+        batalhaAtual.jogadorHp = Math.min(batalhaAtual.jogadorMaxHp, batalhaAtual.jogadorHp + cura);
+        
+        logBatalha(`Você usou uma poção e recuperou <span class="log-cura">${cura} HP</span>!`, true);
+        atualizarBarras();
+        salvarJogo();
+
+        batalhaAtual.turnoJogador = false;
+        alternarBotoesAtaque(false);
+        setTimeout(inimigoAtaca, 1500);
+    }
+
+    function usarStanalita() {
+        if (!batalhaAtual.turnoJogador || (progresso.stanalitas || 0) <= 0) return;
+        
+        progresso.stanalitas--;
+        batalhaAtual.jogadorHp = Math.min(batalhaAtual.jogadorMaxHp, batalhaAtual.jogadorHp + 50);
+        
+        // Ativa o buff
+        batalhaAtual.stanalitaAtiva = true;
+        
+        // Visual roxo
+        document.getElementById("player-name").style.color = "#cc00ff";
+        document.getElementById("player-hp").style.backgroundColor = "#cc00ff";
+
+        logBatalha(`Você usou a <strong style="color:#cc00ff">Stanalita</strong>! Recuperou 50 HP e seu Dano aumentou em 50%!`, true);
+        atualizarBarras();
+        salvarJogo();
+
+        batalhaAtual.turnoJogador = false;
+        alternarBotoesAtaque(false);
+        setTimeout(inimigoAtaca, 1500);
+    }
+
+    function pularBatalha() {
+        mostrarConfirmacao("Pular essa batalha não te dará XP. Deseja pular?", () => {
+            logBatalha("Você fugiu taticamente e avançou na história.");
+            setTimeout(() => {
+                avancarHistoria();
+            }, 1000);
+        });
+    }
+
+    function jogadorAtaca(indexAtaque) {
+        if (!batalhaAtual.turnoJogador) return;
+        batalhaAtual.turnoJogador = false;
+        alternarBotoesAtaque(false);
+
+        const jogador = BANCO_PERSONAGENS[progresso.lutadorAtivo];
+        const ataque = jogador.ataques[indexAtaque];
+        
+        let dano = Math.floor(ataque.dano * (1 + ((progresso.nivel-1) * 0.15)));
+        
+        // Bônus de Família
+        if (jogador.familia === "Família Negativo I") {
+            dano = Math.floor(dano * 1.1); // +10% dano
+            logBatalha(`<small style="color:var(--amarelo-forte)">[Bônus Família Negativo I: +10% Dano!]</small>`, true);
+        }
+
+        // Bônus da Stanalita (+50% de dano)
+        if (batalhaAtual.stanalitaAtiva) {
+            dano = Math.floor(dano * 1.5);
+        }
+
+        // Variação de dano (+- 10%)
+        dano = Math.floor(dano * (0.9 + Math.random() * 0.2));
+
+        logBatalha(`Você usou ${ataque.nome} e causou <span class="log-dano">${dano} de dano</span>!`, true);
+        batalhaAtual.inimigoHp -= dano;
+        atualizarBarras();
+
+        if (batalhaAtual.inimigoHp <= 0) {
+            batalhaAtual.inimigoHp = 0;
+            atualizarBarras();
+            setTimeout(vencerBatalha, 1000);
+        } else {
+            setTimeout(inimigoAtaca, 1500);
+        }
+    }
+
+    function usarSuper() {
+        if (!batalhaAtual.turnoJogador) return;
+        batalhaAtual.turnoJogador = false;
+        alternarBotoesAtaque(false);
+
+        const jogador = BANCO_PERSONAGENS[progresso.lutadorAtivo];
+        const ataque = jogador.super;
+        
+        let dano = Math.floor(ataque.dano * (1 + ((progresso.nivel-1) * 0.15)));
+        
+        if (jogador.familia === "Família Negativo I") {
+            dano = Math.floor(dano * 1.1);
+        }
+
+        if (batalhaAtual.stanalitaAtiva) {
+            dano = Math.floor(dano * 1.5);
+        }
+
+        dano = Math.floor(dano * (0.9 + Math.random() * 0.2));
+
+        logBatalha(`Você usou o SUPER <strong style="color:#ff0000;">${ataque.nome}</strong> e causou <span class="log-dano">${dano} de dano</span>!`, true);
+        batalhaAtual.inimigoHp -= dano;
+        atualizarBarras();
+
+        // Esconde o botão após usar
+        document.getElementById("btn-super").style.display = "none";
+
+        if (batalhaAtual.inimigoHp <= 0) {
+            batalhaAtual.inimigoHp = 0;
+            atualizarBarras();
+            setTimeout(vencerBatalha, 1000);
+        } else {
+            setTimeout(inimigoAtaca, 1500);
+        }
+    }
+
+    function inimigoAtaca() {
+        const inimigo = BANCO_PERSONAGENS[batalhaAtual.inimigoId];
+        const ataqueAleatorio = inimigo.ataques[Math.floor(Math.random() * inimigo.ataques.length)];
+        
+        // Dano do inimigo escala se for modo treino
+        let multDano = batalhaAtual.isTreino ? (1 + ((progresso.nivel-1) * 0.1)) : 1;
+        let dano = Math.floor(ataqueAleatorio.dano * multDano);
+        dano = Math.floor(dano * (0.9 + Math.random() * 0.2)); // Variação
+
+        logBatalha(`O inimigo usou ${ataqueAleatorio.nome} causando <span class="log-alerta">${dano} de dano</span>!`, true);
+        batalhaAtual.jogadorHp -= dano;
+        atualizarBarras();
+
+        if (batalhaAtual.jogadorHp <= 0) {
+            batalhaAtual.jogadorHp = 0;
+            atualizarBarras();
+            setTimeout(perderBatalha, 1000);
+        } else {
+            batalhaAtual.turnoJogador = true;
+            alternarBotoesAtaque(true);
+        }
+    }
+
+    function vencerBatalha() {
+        const inimigoId = batalhaAtual.inimigoId;
+        const inimigo = BANCO_PERSONAGENS[inimigoId];
+        let xpGanho = 0;
+        let moedasGanhas = 25 + Math.floor(Math.random() * 15); // Ganha entre 25 e 40 moedas por vitória
+
+        progresso.vitorias++;
+
+        if (batalhaAtual.isTreino) {
+            xpGanho = 20 + (progresso.nivel * 5); // XP dinâmico no treino
+        } else {
+            const passoAtual = HISTORIA[progresso.passoHistoria];
+            xpGanho = passoAtual.xpGanho || 50;
+        }
+        
+        let msgVit = `Você derrotou ${inimigo.nome}!\nGanhou ${xpGanho} XP e ${moedasGanhas} Moedas!`;
+        progresso.xp += xpGanho;
+        progresso.moedas = (progresso.moedas || 0) + moedasGanhas;
+
+        // Level Up
+        const xpNecessario = progresso.nivel * 100;
+        if (progresso.xp >= xpNecessario) {
+            progresso.xp -= xpNecessario;
+            progresso.nivel++;
+            progresso.pocoes += 2; // Recompensa de level up
+            msgVit += `\n\nPARABÉNS! Você subiu para o Nível ${progresso.nivel}! (+2 Poções)`;
+        }
+
+        // Desbloqueio de personagem
+        if (!progresso.personagensDesbloqueados.includes(inimigoId)) {
+            progresso.personagensDesbloqueados.push(inimigoId);
+            msgVit += `\n\nNOVO LUTADOR DESBLOQUEADO: ${inimigo.nome}!`;
+        }
+
+        salvarJogo();
+
+        mostrarMensagem(msgVit, "Vitória!", () => {
+            if (batalhaAtual.isTreino) {
+                mostrarTela('menu-screen');
+            } else {
+                avancarHistoria();
+            }
+        });
+    }
+
+    function perderBatalha() {
+        let msg = "Você foi derrotado... Continue treinando e tente novamente.";
+        
+        if (!batalhaAtual.isTreino) {
+            progresso.derrotasNoPassoAtual++;
+            if (progresso.derrotasNoPassoAtual >= 2) {
+                msg += "\n\nParece que esta luta está difícil. Você ativou a opção de 'Pular Batalha' na próxima tentativa.";
+            }
+        }
+        
+        salvarJogo();
+
+        mostrarMensagem(msg, "Derrota", () => {
+            mostrarTela('menu-screen');
+        });
+    }
+
+    // Inicialização
+    window.onload = carregarSave;
+
+</script>
+</body>
+</html>
