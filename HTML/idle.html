@@ -133,7 +133,7 @@
         .buy-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
         .buy-btn:active:not(:disabled) { transform: scale(0.96); }
         .gegp-btn { background: var(--secondary); color: white; }
-        .loot-btn { width: 100%; padding: 12px; font-size: 0.95rem; margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; line-height: 1.2;}
+        .pacote-btn { width: 100%; padding: 12px; font-size: 0.95rem; margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; line-height: 1.2;}
         .secondary { background: white; border: 1px solid #cbd5e0; color: var(--text); }
         .secondary:hover { background: #f7fafc; }
 
@@ -174,8 +174,8 @@
         .footer-note { font-size: 0.75rem; color: var(--text-light); margin-top: 15px; padding-top: 10px; border-top: 1px dashed #e2e8f0; line-height: 1.4; text-align: left;}
         .hint { background: #f0fff4; border: 1px solid #c6f6d5; padding: 12px; border-radius: 8px; color: #276749; font-size: 0.85rem; margin-top: 15px; text-align: left;}
         
-        .loot-icon { font-size: 3rem; margin: 10px 0; }
-        .loot-reward { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+        .pacote-icon { font-size: 3rem; margin: 10px 0; }
+        .pacote-reward { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; line-height: 1.5; white-space: pre-line;}
 
         @media (max-width: 768px) {
             header { flex-direction: column; text-align: center; align-items: center; }
@@ -192,6 +192,7 @@
                 <h1>Ovelha Idle GEGP 🐑</h1>
                 <div class="rate" id="dateInfo"></div>
                 <div class="controls">
+                    <button class="secondary" id="musicBtn">🎵 Música: Off</button>
                     <button class="secondary" id="saveBtn">Salvar agora</button>
                     <button class="secondary" id="statsBtn">Estatísticas do Jogo</button>
                     <button class="secondary" style="color:var(--danger)" id="resetBtn">Resetar</button>
@@ -216,27 +217,38 @@
                 <div class="footer-note">Regra GEGP: Todos os personagens rendem 10% do seu valor por segundo!</div>
             </div>
 
-            <!-- PAINEL DE LOOT BOXES -->
+            <!-- PAINEL DE CONTRATOS (Substituiu Loot Boxes) -->
             <div class="panel">
-                <h2>Loot Boxes (Ovelhas) 🎁</h2>
+                <h2>Contratos de Recrutamento 📜</h2>
                 <div style="text-align: center; padding: 5px;">
                     
-                    <button class="buy-btn loot-btn" style="background: var(--warning);" id="btnComprarLoot">
-                        <span>Caixa Clássica Surpresa (R$ 5.000)</span>
-                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Mix de prêmios e GEGP+</span>
+                    <button class="buy-btn pacote-btn" style="background: var(--warning);" id="btnComprarContratoBasico">
+                        <span>Contrato Básico (R$ 5.000)</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Garante: 2x Filhotes, 1x JB, 15 GEGP+</span>
                     </button>
                     
-                    <button class="buy-btn loot-btn" style="background: #38b2ac;" id="btnComprarLootOvelha">
-                        <span>Caixa do Rebanho (R$ 15.000)</span>
-                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Apenas personagens da classe Ovelha 🐑</span>
+                    <button class="buy-btn pacote-btn" style="background: #38b2ac;" id="btnComprarContratoRebanho">
+                        <span>Contrato do Rebanho (R$ 15.000)</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Garante: 3x Filhotes, 1x D. Ovelha, 1x Bárbara</span>
                     </button>
                     
-                    <button class="buy-btn loot-btn" style="background: #9f7aea;" id="btnComprarCaixaSuprema">
-                        <span>Caixa Suprema (R$ 500.000) 👑</span>
-                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Alta Renda Lendária (0.2% de vir Gabriel)</span>
+                    <!-- CONTRATO FAMÍLIA DA SELVA -->
+                    <button class="buy-btn pacote-btn" style="background: #48bb78;" id="btnComprarContratoSelva">
+                        <span>Contrato da Selva (R$ 75.000) 🌿</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Garante: 1x Niquito, 1x Nani, 1x Gaia</span>
                     </button>
 
-                </div>
+                    <!-- CONTRATO TECNOLÓGICO -->
+                    <button class="buy-btn pacote-btn" style="background: #4299e1;" id="btnComprarContratoTech">
+                        <span>Contrato Tech (R$ 250.000) 💎</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Garante: 1x Diva, 1x Fantasgoro</span>
+                    </button>
+
+                    <button class="buy-btn pacote-btn" style="background: #9f7aea;" id="btnComprarContratoSupremo">
+                        <span>Contrato Supremo (R$ 500.000) 👑</span>
+                        <span style="font-size: 0.75rem; font-weight: 400; opacity: 0.9;">Garante: 2x Diva, 1x Ourino, 1x Sonna</span>
+                    </button>
+               </div> 
                 
                 <h2 style="margin-top: 20px;">Skins (Raridades)</h2>
                 <div class="list" id="skinList"></div>
@@ -252,7 +264,7 @@
             <!-- PAINEL RESUMO -->
             <div class="panel">
                 <h2>Resumo & Estratégia</h2>
-                <div id="migrationMessage"></div>
+                <div id="migrationMessageContainer"></div>
                 <div class="hint" id="summary"></div>
                 
                 <div class="hint" style="margin-top:12px; background: #fffaf0; border-color: #feebc8; color: #9c4221;">
@@ -260,7 +272,7 @@
                     <span class="badge" id="promoBadge" style="display:none; background:var(--danger); color:white; padding:2px 5px; border-radius:4px; font-size:0.7rem">PROMO ATIVA</span>
                 </div>
                 
-                <div class="footer-note">O jogo foca em combos de Supers, Loot Boxes e Skins Lendárias/GEGP+ para maximizar a renda. 🐑</div>
+                <div class="footer-note">O jogo foca em combos de Supers, Contratos e Skins Lendárias/GEGP+ para maximizar a renda. 🐑</div>
             </div>
         </div>
     </div>
@@ -290,26 +302,54 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="lootModal">
+    <!-- MODAL DE CONTRATOS (Substituiu LootBox Modal) -->
+    <div class="modal-overlay" id="contractModal">
         <div class="modal">
-            <h3 style="margin-top:0; color: var(--warning);">🎁 Caixa Aberta!</h3>
-            <div class="loot-icon">✨</div>
-            <p style="font-size: 0.9rem; color: var(--text-light);">Você encontrou:</p>
-            <div class="loot-reward" id="lootRewardText">1x Fantasgoro</div>
-            <button class="buy-btn" style="width:100%; background: var(--warning);" id="closeLootBtn">Incrível!</button>
+            <h3 style="margin-top:0; color: var(--primary);">📜 Contrato Assinado!</h3>
+            <div class="pacote-icon">🤝</div>
+            <p style="font-size: 0.9rem; color: var(--text-light);">Você recrutou com sucesso:</p>
+            <div class="pacote-reward" id="contractRewardText">...</div>
+            <button class="buy-btn" style="width:100%; background: var(--primary);" id="closeContractBtn">Excelente!</button>
         </div>
     </div>
 
+    <!-- MODAL: AVISO DE PAUSA -->
+    <div class="modal-overlay" id="breakModal">
+        <div class="modal">
+            <h3 style="margin-top:0; color: var(--primary);">☕ Hora de uma Pausa!</h3>
+            <div class="pacote-icon">⏳</div>
+            <p style="font-size: 0.95rem; color: var(--text-light); line-height: 1.5; margin-bottom: 10px;">Você já está jogando há 30 minutos contínuos. Que tal beber uma água, esticar as pernas e descansar os olhos um pouquinho?</p>
+            <p style="font-size: 0.85rem; font-weight: bold; color: var(--secondary);">Ovelhas saudáveis rendem mais! 🐑</p>
+            <button class="buy-btn" style="width:100%; margin-top: 15px; background: var(--primary);" id="closeBreakBtn">Entendido, vou me cuidar!</button>
+        </div>
+    </div>
+
+    <!-- ÁUDIOS -->
+    <audio id="bgMusic" loop src="midia/bg.mp3"></audio>
+    <audio id="buySound" src="midia/buy.mp3"></audio>
+    <audio id="pacoteSound" src="midia/loot.mp3"></audio>
+
     <script>
-        /* ======= JS V6 - SISTEMA DE 3 LOOT BOXES ======= */
-        const SAVE_KEY = 'idlegame_ovelha_gegp_v6'; 
+        /* ======= JS V7 - SISTEMA DE CONTRATOS, MIGRAÇÃO E PAUSAS ======= */
+        const SAVE_KEY = 'idlegame_ovelha_gegp_v7'; 
+        const OLD_SAVE_KEYS = [
+'idlegame_ovelha_gegp_v6',
+'idlegame_ovelha_gegp_v5', 'idlegame_ovelha_gegp_v4', 'idlegame_ovelha_gegp',
+'idlegame_ovelha_gegp_v3']; // Chaves antigas para migração
+        
         const SUPER_DURATION_S = 1200;
         const GEGP_RATE = 1000;
         
-        // Preços das Loot Boxes
-        const PRECO_LOOT_BOX = 5000;
-        const PRECO_LOOT_OVELHA = 15000;
-        const PRECO_CAIXA_SUPREMA = 500000;
+        // Configuração de tempo de pausa (30 minutos)
+        let lastBreakWarningTime = Date.now();
+        const BREAK_INTERVAL_MS = 30 * 60 * 1000; 
+
+        // Preços dos Contratos (Determinísticos)
+        const PRECO_CONTRATO_BASICO = 5000;
+        const PRECO_CONTRATO_REBANHO = 15000;
+        const PRECO_CONTRATO_SELVA = 75000;
+        const PRECO_CONTRATO_TECH = 250000;
+        const PRECO_CONTRATO_SUPREMO = 500000;
 
         const brl = v => {
           const val = (typeof v !== 'number' || isNaN(v) || !isFinite(v)) ? 0 : v;
@@ -352,7 +392,10 @@
             { id:'dona_ovelha_super', nome:'Matriarca', targetId:'ovelha', custoGEGP:5000, duration:SUPER_DURATION_S, efeitoRPS:2500, type:'fixed' },
             { id:'ovelha_barbara_super', nome:'Chifres de justiça', targetId:'ovelha_barbara', custoGEGP:7000, duration:SUPER_DURATION_S, efeitoPorcentagem:0.50, targetType:'ovelha', type:'percent_sheep_global' },
             { id:'filhote_super', nome:'Fofura Suprema', targetId:'ovelha_filhote', custoGEGP:3000, duration:SUPER_DURATION_S, efeitoRPS:1000, type:'fixed' },
-            { id:'jb_super', nome:'Super Advocacia (JB)', targetId:'jb', custoGEGP:4000, duration:SUPER_DURATION_S, efeitoGEGPMultiplier: 2, type:'gegp_multiplier' }
+            { id:'jb_super', nome:'Super Advocacia (JB)', targetId:'jb', custoGEGP:4000, duration:SUPER_DURATION_S, efeitoGEGPMultiplier: 2, type:'gegp_multiplier' },
+              { id:'smartu_super', nome:'Resfriamento maximo', targetId:'smartu', custoGEGP:7000, duration:SUPER_DURATION_S, efeitoRPS:1200, type:'fixed' },
+                            { id:'niquito_super', nome:'Grito da selva', targetId:'niquito', custoGEGP:12000, duration:SUPER_DURATION_S, efeitoRPS:2000, type:'fixed' },
+              { id:'fantasgoro_super', nome:'Exército de mortos', targetId:'fantasgoro', custoGEGP:15000, duration:SUPER_DURATION_S, efeitoRPS:2000, type:'fixed' }
         ];
         const BUYABLE_SUPERS = SUPERS.filter(s => s.type !== 'percent_chosen' && s.type !== 'fixed_chosen'); 
 
@@ -362,12 +405,19 @@
           { id:'amiguinho',nome:'Amiguinho', preco:10, qtd:1, desc:'Seu primeiro amigo.', tags:[] },
           { id:'ovelha_filhote', nome:'Filhote de Ovelha', preco:50, qtd:0, desc:'Uma ovelhinha pequena.', tags:['ovelha'] },
           { id:'ovelha', nome:'Dona Ovelha', preco:500, qtd:0, desc:'A matriarca! Recebeu um buff!', tags:['ovelha'] }, 
+                    { id:'mika', nome:'Mika', preco:1500, qtd:0, desc:'A formiga rainha do HTML 5!', tags:['tech'] }, 
+                              { id:'smartu', nome:'SMARTU', preco:2600, qtd:0, desc:'O celular desastrado mais querido do Brasil!', tags:['tech'] },
+                    { id:'espretulos', nome:'Esprétulos', preco:180000, qtd:0, desc:'O vilão da informação!', tags:['tech'] },  
           { id:'ovelha_barbara', nome:'Ovelha Bárbara', preco:800, qtd:0, desc:'Irmã da Dona Ovelha.', tags:['ovelha'] },
           { id:'jb', nome:'JB', preco:2000, qtd:0, desc:'Advogado da vila da ovelha.', tags:['familia da justiça'] },
           { id:'amestica', nome:'Amestica', preco:4000, qtd:0, desc:'Amante da natureza e da paz.', tags:['familia da justiça'] },
-          { id:'diva', nome:'Diva', preco:25000, qtd:0, desc:'Renda Média. Brilhante e famosa.', tags:[] }, 
+          { id:'diva', nome:'Diva', preco:25000, qtd:0, desc:'Renda Média. Brilhante e famosa.', tags:['K-POP'] }, 
           { id:'ourino', nome:'Ourino', preco:100000, qtd:0, desc:'Primo de JB.', tags:['familia da justiça'] },
-          { id:'fantasgoro', nome:'Fantasgoro', preco:250000, qtd:0, desc:'Renda Alta. Uma lenda misteriosa.', tags:[] }, 
+          { id:'niquito', nome:'Niquito', preco:150000, qtd:0, desc:'Macaquinho favorito do GEGP.', tags:['Selva'] },
+            { id:'nani', nome:'Nani', preco:150000, qtd:0, desc:'Tatuzinha favorita do GEGP', tags:['Selva'] },
+              { id:'gaia', nome:'Gaia', preco:5000, qtd:0, desc:'Samanbaia moradora da selva GEGP', tags:['Selva'] },
+          { id:'fantasgoro', nome:'Fantasgoro', preco:250000, qtd:0, desc:'Renda Alta. Uma lenda misteriosa.', tags:['Casa Assombrada'] },
+          { id:'queenghost', nome:'Queenghost', preco:90000, qtd:0, desc:'Renda Alta. Uma lenda misteriosa.', tags:['Casa Assombrada'] },
           { id:'sona', nome:'Sonna', preco:500000, qtd:0, desc:'Narra e rende ao mesmo tempo.', tags:['ovelha'] },
           { id:'gabriel', nome:'Gabriel', preco:10000000, qtd:0, desc:'Chefe, faz o dinheiro girar mais rápido.', tags:['criador'] }
         ].map(item => ({ ...item, renda: calcularRenda(item.preco) })); 
@@ -377,6 +427,8 @@
             { id:'ovelha_rara', nome:'Ovelha Terapêutica', preco:50000, rarity:'Rara', target_character_id:'ovelha', qtd:0, desc:'Bônus a cada 15s.' },
             { id:'jb_epico', nome:'JB V2.0', preco:500000, rarity:'Épica', target_character_id:'jb', qtd:0, desc:'Duplica a renda do JB.' },
             { id:'barbara_lendaria', nome:'Bárbara Chefe', preco:1000000, rarity:'Lendária', target_character_id:'ovelha_barbara', qtd:0, desc:'2X a renda + bônus.' },
+            { id:'gabriel_boss', nome:'Gabriel chefe', preco:1900000, rarity:'Lendária', target_character_id:'gabriel', qtd:0, desc:'2X a renda + bônus.' },
+                     { id:'ovelha_fan', nome:'Ovelha fan do Carlos', preco:100000, rarity:'Lendária', target_character_id:'ovelha', qtd:0, desc:'2X a renda + bônus.' },
             { id:'gegp_super_skin', nome:'Pele Dourada (GEGP+)', precoGEGP:7000, rarity:'GEGP+', target_character_id:null, qtd:0, desc:'Ativa Super Global.' },
         ];
 
@@ -387,6 +439,34 @@
           activeSupers: [], lastTick: Date.now(), migrationMessage: null,
           stats: { totalPlayTimeSeconds: 0, totalMoneyEarned: 0, totalGEGPEarned: 0, totalItemsBought: 0 }
         };
+
+        // REFERÊNCIAS DE ÁUDIO
+        const $bgMusic = document.getElementById('bgMusic');
+        const $buySound = document.getElementById('buySound');
+        const $pacoteSound = document.getElementById('pacoteSound');
+        const $musicBtn = document.getElementById('musicBtn');
+        let musicOn = false;
+
+        $musicBtn.onclick = () => {
+            if (musicOn) {
+                $bgMusic.pause();
+                $musicBtn.textContent = '🎵 Música: Off';
+            } else {
+                $bgMusic.play().catch(e => console.log('Adicione um link válido de música de fundo.', e));
+                $musicBtn.textContent = '🎵 Música: On';
+            }
+            musicOn = !musicOn;
+        };
+
+        function tocarSomCompra() {
+            $buySound.currentTime = 0;
+            $buySound.play().catch(e => console.log('Adicione um link válido de som de compra.', e));
+        }
+
+        function tocarSomPacote() {
+            $pacoteSound.currentTime = 0;
+            $pacoteSound.play().catch(e => console.log('Adicione um link válido de som de pacote.', e));
+        }
 
         const getBaseRPS = (item) => (Number(item.renda) || 0) * (Number(item.qtd) || 0);
 
@@ -463,6 +543,12 @@
           }
           state.lastTick = nowTs;
           state.activeSupers = state.activeSupers.filter(s => s.expires > nowTs);
+
+          // VERIFICAÇÃO DE PAUSA A CADA 30 MINUTOS
+          if (nowTs - lastBreakWarningTime >= BREAK_INTERVAL_MS) {
+              document.getElementById('breakModal').classList.add('active');
+              lastBreakWarningTime = nowTs; // Reseta o tempo após mostrar
+          }
         }
 
         function precoAtual(item) {
@@ -481,90 +567,84 @@
             state.dinheiro -= p;
             item.qtd = (Number(item.qtd) || 0) + 1;
             state.stats.totalItemsBought += 1;
+            tocarSomCompra(); 
             renderAll();
             save();
           }
         }
 
-        function mostrarModalLoot(texto) {
-            document.getElementById('lootRewardText').textContent = texto;
-            document.getElementById('lootModal').classList.add('active');
+        function mostrarModalContrato(texto) {
+            document.getElementById('contractRewardText').textContent = texto;
+            document.getElementById('contractModal').classList.add('active');
         }
 
-        // --- SISTEMA DE LOOT BOXES ---
-        function abrirLootBox() {
-            if (state.dinheiro >= PRECO_LOOT_BOX) {
-                state.dinheiro -= PRECO_LOOT_BOX;
-                const rand = Math.random();
-                let recompensaTexto = "";
+        // --- SISTEMA DE CONTRATOS (DETERMINÍSTICO E SEGURO) ---
+        function assinarContratoBasico() {
+            if (state.dinheiro >= PRECO_CONTRATO_BASICO) {
+                state.dinheiro -= PRECO_CONTRATO_BASICO;
+                tocarSomPacote(); 
                 
-                if (rand < 0.40) {
-                    const gegpGanho = Math.floor(Math.random() * 41) + 10;
-                    state.gegp += gegpGanho;
-                    state.stats.totalGEGPEarned += gegpGanho;
-                    recompensaTexto = `${gegpGanho} GEGP+ ✨`;
-                } else if (rand < 0.70) {
-                    state.items.find(i => i.id === 'ovelha_filhote').qtd += 2;
-                    recompensaTexto = "2x Filhotes de Ovelha 🐑";
-                } else if (rand < 0.90) {
-                    state.items.find(i => i.id === 'jb').qtd += 1;
-                    recompensaTexto = "1x JB ⚖️";
-                } else if (rand < 0.98) {
-                    state.items.find(i => i.id === 'diva').qtd += 1;
-                    recompensaTexto = "1x Diva 🌟 (Raro!)";
-                } else {
-                    state.items.find(i => i.id === 'fantasgoro').qtd += 1;
-                    recompensaTexto = "1x FANTASGORO 👻 (LENDÁRIO!)";
-                }
-                mostrarModalLoot(recompensaTexto);
+                state.items.find(i => i.id === 'ovelha_filhote').qtd += 2;
+                state.items.find(i => i.id === 'jb').qtd += 1;
+                state.gegp += 15;
+                state.stats.totalGEGPEarned += 15;
+                
+                mostrarModalContrato("2x Filhotes de Ovelha 🐑\n1x JB ⚖️\n15 GEGP+ ✨");
                 save(); renderAll();
             }
         }
 
-        function abrirLootBoxOvelha() {
-            if (state.dinheiro >= PRECO_LOOT_OVELHA) {
-                state.dinheiro -= PRECO_LOOT_OVELHA;
-                const rand = Math.random();
-                let recompensaTexto = "";
+        function assinarContratoRebanho() {
+            if (state.dinheiro >= PRECO_CONTRATO_REBANHO) {
+                state.dinheiro -= PRECO_CONTRATO_REBANHO;
+                tocarSomPacote(); 
                 
-                if (rand < 0.50) {
-                    state.items.find(i => i.id === 'ovelha_filhote').qtd += 3;
-                    recompensaTexto = "3x Filhotes de Ovelha 🐑";
-                } else if (rand < 0.85) {
-                    state.items.find(i => i.id === 'ovelha').qtd += 1;
-                    recompensaTexto = "1x Dona Ovelha 🐑";
-                } else if (rand < 0.98) {
-                    state.items.find(i => i.id === 'ovelha_barbara').qtd += 1;
-                    recompensaTexto = "1x Ovelha Bárbara ⚔️";
-                } else {
-                    state.items.find(i => i.id === 'sona').qtd += 1;
-                    recompensaTexto = "1x Sonna 🎵 (LENDÁRIO!)";
-                }
-                mostrarModalLoot(recompensaTexto);
+                state.items.find(i => i.id === 'ovelha_filhote').qtd += 3;
+                state.items.find(i => i.id === 'ovelha').qtd += 1;
+                state.items.find(i => i.id === 'ovelha_barbara').qtd += 1;
+                
+                mostrarModalContrato("3x Filhotes de Ovelha 🐑\n1x Dona Ovelha 🐑\n1x Ovelha Bárbara ⚔️");
                 save(); renderAll();
             }
         }
 
-        function abrirCaixaSuprema() {
-            if (state.dinheiro >= PRECO_CAIXA_SUPREMA) {
-                state.dinheiro -= PRECO_CAIXA_SUPREMA;
-                const rand = Math.random();
-                let recompensaTexto = "";
+        function assinarContratoSelva() {
+            if (state.dinheiro >= PRECO_CONTRATO_SELVA) {
+                state.dinheiro -= PRECO_CONTRATO_SELVA;
+                tocarSomPacote(); 
                 
-                if (rand < 0.002) { // 0.2% DE CHANCE
-                    state.items.find(i => i.id === 'gabriel').qtd += 1;
-                    recompensaTexto = "1x GABRIEL 👑 (MÍTICO - 0.2%!)";
-                } else if (rand < 0.30) {
-                    state.items.find(i => i.id === 'fantasgoro').qtd += 1;
-                    recompensaTexto = "1x Fantasgoro 👻 (Lendário)";
-                } else if (rand < 0.60) {
-                    state.items.find(i => i.id === 'ourino').qtd += 1;
-                    recompensaTexto = "1x Ourino 💰 (Mítico)";
-                } else {
-                    state.items.find(i => i.id === 'diva').qtd += 3;
-                    recompensaTexto = "3x Diva 🌟 (Alta Renda)";
-                }
-                mostrarModalLoot(recompensaTexto);
+                state.items.find(i => i.id === 'niquito').qtd += 1;
+                state.items.find(i => i.id === 'nani').qtd += 1;
+                state.items.find(i => i.id === 'gaia').qtd += 1;
+                
+                mostrarModalContrato("1x Niquito 🐒\n1x Nani 🦔\n1x Gaia 🌿");
+                save(); renderAll();
+            }
+        }
+
+        function assinarContratoTech() {
+            if (state.dinheiro >= PRECO_CONTRATO_TECH) {
+                state.dinheiro -= PRECO_CONTRATO_TECH;
+                tocarSomPacote(); 
+                
+                state.items.find(i => i.id === 'diva').qtd += 1;
+                state.items.find(i => i.id === 'fantasgoro').qtd += 1;
+                
+                mostrarModalContrato("1x Diva 💅\n1x Fantasgoro 👻");
+                save(); renderAll();
+            }
+        }
+
+        function assinarContratoSupremo() {
+            if (state.dinheiro >= PRECO_CONTRATO_SUPREMO) {
+                state.dinheiro -= PRECO_CONTRATO_SUPREMO;
+                tocarSomPacote(); 
+                
+                state.items.find(i => i.id === 'diva').qtd += 2;
+                state.items.find(i => i.id === 'ourino').qtd += 1;
+                state.items.find(i => i.id === 'sona').qtd += 1;
+                
+                mostrarModalContrato("2x Diva 🌟\n1x Ourino 💰\n1x Sonna 🎵");
                 save(); renderAll();
             }
         }
@@ -581,11 +661,13 @@
                   skin.qtd = 1;
                   const expires = Date.now() + SUPER_DURATION_S * 1000;
                   state.activeSupers.push({ id: 'gegp_super_active', expires: expires });
+                  tocarSomCompra(); 
               }
           } else {
               if (state.dinheiro >= custo) {
                   state.dinheiro -= custo;
                   skin.qtd = 1;
+                  tocarSomCompra(); 
               }
           }
           save(); renderAll();
@@ -599,6 +681,7 @@
                 state.gegp -= superDef.custoGEGP;
                 const expires = Date.now() + SUPER_DURATION_S * 1000;
                 state.activeSupers.push({ id: superDef.id, expires: expires });
+                tocarSomCompra(); 
                 save(); renderAll();
             }
         }
@@ -606,12 +689,27 @@
         function load() {
           try {
             let raw = localStorage.getItem(SAVE_KEY);
-            if (!raw) return;
+            let isMigration = false;
+            
+            if (!raw) {
+                for (let oldKey of OLD_SAVE_KEYS) {
+                    raw = localStorage.getItem(oldKey);
+                    if (raw) {
+                        isMigration = true;
+                        state.migrationMessage = "Progresso restaurado de uma versão anterior com sucesso! 🐑";
+                        break; 
+                    }
+                }
+            }
+
+            if (!raw) return; 
+            
             const saved = JSON.parse(raw);
             state.dinheiro = (isFinite(saved.dinheiro)) ? Number(saved.dinheiro) : 10;
             state.gegp = (isFinite(saved.gegp)) ? Number(saved.gegp) : 0;
             state.earnedSinceLastGEGP = (isFinite(saved.earnedSinceLastGEGP)) ? Number(saved.earnedSinceLastGEGP) : 0;
             state.lastTick = (isFinite(saved.lastTick)) ? Number(saved.lastTick) : Date.now();
+            
             if (Array.isArray(saved.items)) {
                 saved.items.forEach(si => {
                     const myI = state.items.find(i => i.id === si.id);
@@ -625,12 +723,16 @@
                 });
             }
             if (Array.isArray(saved.activeSupers)) state.activeSupers = saved.activeSupers.filter(s => s.expires > Date.now());
+            
             if (saved.stats) {
                 state.stats.totalPlayTimeSeconds = Number(saved.stats.totalPlayTimeSeconds) || 0;
                 state.stats.totalMoneyEarned = Number(saved.stats.totalMoneyEarned) || 0;
                 state.stats.totalGEGPEarned = Number(saved.stats.totalGEGPEarned) || 0;
                 state.stats.totalItemsBought = Number(saved.stats.totalItemsBought) || 0;
             }
+
+            if (isMigration) save();
+
           } catch (e) { state.lastTick = Date.now(); }
         }
 
@@ -638,7 +740,11 @@
             try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...state, migrationMessage: null })); } catch (e) { }
         }
 
-        function reset() { localStorage.removeItem(SAVE_KEY); location.reload(); }
+        function reset() { 
+            localStorage.removeItem(SAVE_KEY); 
+            OLD_SAVE_KEYS.forEach(key => localStorage.removeItem(key));
+            location.reload(); 
+        }
 
         function getAvatarHtml(nome, imageUrl = null) {
             if (imageUrl) {
@@ -660,10 +766,13 @@
         const $summary = document.getElementById('summary');
         const $dateInfo = document.getElementById('dateInfo');
         const $promoBadge = document.getElementById('promoBadge');
+        const $migrationContainer = document.getElementById('migrationMessageContainer');
         
-        const $btnComprarLoot = document.getElementById('btnComprarLoot');
-        const $btnComprarLootOvelha = document.getElementById('btnComprarLootOvelha');
-        const $btnComprarCaixaSuprema = document.getElementById('btnComprarCaixaSuprema');
+        const $btnComprarContratoBasico = document.getElementById('btnComprarContratoBasico');
+        const $btnComprarContratoRebanho = document.getElementById('btnComprarContratoRebanho');
+        const $btnComprarContratoSelva = document.getElementById('btnComprarContratoSelva');
+        const $btnComprarContratoTech = document.getElementById('btnComprarContratoTech');
+        const $btnComprarContratoSupremo = document.getElementById('btnComprarContratoSupremo');
 
         $dateInfo.textContent = `Hoje: ${now.toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'})}`;
         $promoBadge.style.display = promoGabrielActive ? 'inline-block' : 'none';
@@ -676,15 +785,20 @@
             $gegpRate.textContent = `R$ ${fmt(state.earnedSinceLastGEGP)} / 1.000`;
             $gegpBar.style.width = `${Math.min(100, (state.earnedSinceLastGEGP / GEGP_RATE) * 100)}%`;
             
-            // Controle dos Botões de Loot Box
-            $btnComprarLoot.disabled = state.dinheiro < PRECO_LOOT_BOX;
-            $btnComprarLoot.style.opacity = state.dinheiro < PRECO_LOOT_BOX ? '0.6' : '1';
+            $btnComprarContratoBasico.disabled = state.dinheiro < PRECO_CONTRATO_BASICO;
+            $btnComprarContratoBasico.style.opacity = state.dinheiro < PRECO_CONTRATO_BASICO ? '0.6' : '1';
             
-            $btnComprarLootOvelha.disabled = state.dinheiro < PRECO_LOOT_OVELHA;
-            $btnComprarLootOvelha.style.opacity = state.dinheiro < PRECO_LOOT_OVELHA ? '0.6' : '1';
+            $btnComprarContratoRebanho.disabled = state.dinheiro < PRECO_CONTRATO_REBANHO;
+            $btnComprarContratoRebanho.style.opacity = state.dinheiro < PRECO_CONTRATO_REBANHO ? '0.6' : '1';
+
+            $btnComprarContratoSelva.disabled = state.dinheiro < PRECO_CONTRATO_SELVA;
+            $btnComprarContratoSelva.style.opacity = state.dinheiro < PRECO_CONTRATO_SELVA ? '0.6' : '1';
+
+            $btnComprarContratoTech.disabled = state.dinheiro < PRECO_CONTRATO_TECH;
+            $btnComprarContratoTech.style.opacity = state.dinheiro < PRECO_CONTRATO_TECH ? '0.6' : '1';
             
-            $btnComprarCaixaSuprema.disabled = state.dinheiro < PRECO_CAIXA_SUPREMA;
-            $btnComprarCaixaSuprema.style.opacity = state.dinheiro < PRECO_CAIXA_SUPREMA ? '0.6' : '1';
+            $btnComprarContratoSupremo.disabled = state.dinheiro < PRECO_CONTRATO_SUPREMO;
+            $btnComprarContratoSupremo.style.opacity = state.dinheiro < PRECO_CONTRATO_SUPREMO ? '0.6' : '1';
         }
 
         function renderStore() {
@@ -765,6 +879,12 @@
         function renderSummary() {
             const totalItens = state.items.reduce((a,b) => a + (b.qtd||0), 0);
             $summary.innerHTML = `Total Unidades: ${fmt(totalItens)} | Total Skins: ${state.skins.filter(s=>s.qtd>0).length}`;
+            
+            if (state.migrationMessage) {
+                $migrationContainer.innerHTML = `<div class="hint" style="background:#e6fffa; border-color:#319795; color:#234e52; margin-bottom: 12px;"><b>Aviso:</b> ${state.migrationMessage}</div>`;
+            } else {
+                $migrationContainer.innerHTML = '';
+            }
         }
 
         function renderStatsModal() {
@@ -787,11 +907,16 @@
         document.getElementById('statsBtn').onclick = () => { renderStatsModal(); document.getElementById('statsModal').classList.add('active'); };
         document.getElementById('closeStatsBtn').onclick = () => document.getElementById('statsModal').classList.remove('active');
         
-        // Eventos dos botões de Loot Box
-        $btnComprarLoot.onclick = abrirLootBox;
-        $btnComprarLootOvelha.onclick = abrirLootBoxOvelha;
-        $btnComprarCaixaSuprema.onclick = abrirCaixaSuprema;
-        document.getElementById('closeLootBtn').onclick = () => document.getElementById('lootModal').classList.remove('active');
+        $btnComprarContratoBasico.onclick = assinarContratoBasico;
+        $btnComprarContratoRebanho.onclick = assinarContratoRebanho;
+        $btnComprarContratoSelva.onclick = assinarContratoSelva;
+        $btnComprarContratoTech.onclick = assinarContratoTech;
+        $btnComprarContratoSupremo.onclick = assinarContratoSupremo;
+
+        document.getElementById('closeContractBtn').onclick = () => document.getElementById('contractModal').classList.remove('active');
+        document.getElementById('closeBreakBtn').onclick = () => document.getElementById('breakModal').classList.remove('active');
     </script>
 </body>
-  </html>
+</html>
+
+
