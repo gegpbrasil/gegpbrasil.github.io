@@ -68,6 +68,30 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* Animações do Tutorial */
+        .tutorial-pointer {
+            position: absolute;
+            pointer-events: none;
+            animation: point-anim 0.8s infinite alternate ease-in-out;
+            z-index: 60;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+        }
+        @keyframes point-anim {
+            0% { transform: translate(-50%, 0); }
+            100% { transform: translate(-50%, -15px); }
+        }
+
+        .btn-active-glow {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            animation: pulse-glow 1.5s infinite;
+            border-color: #00f2ff !important;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+        }
         
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -102,6 +126,15 @@
         </div>
     </header>
 
+    <!-- MISSION/GUIDE BAR (TUTORIAL) -->
+    <div id="guide-bar" class="hidden bg-cyan-950/40 border-b border-cyan-500/30 py-2 px-4 flex items-center gap-3 shrink-0 z-40 transition-all duration-500">
+        <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center text-lg">👩‍🔬</div>
+        <div class="flex flex-col">
+            <span class="text-[10px] text-cyan-300 uppercase font-bold tracking-wider">Dra. Suzana orienta:</span>
+            <span id="guide-text" class="text-xs text-white">Toque rápido na incubadora para gerar energia!</span>
+        </div>
+    </div>
+
     <!-- ACTION AREA -->
     <section class="shrink-0 p-4 pb-2 flex flex-col items-center justify-center relative bg-black/10 z-40">
         <div class="relative mb-3">
@@ -111,12 +144,16 @@
             <div id="combo-badge" class="hidden absolute -top-2 -right-4 bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-pink-400 animate-bounce z-20 shadow-lg">
                 x<span id="combo-val">0</span>
             </div>
+            <!-- Dedo do Tutorial -->
+            <div id="hand-pointer" class="hidden tutorial-pointer absolute -bottom-8 left-1/2 text-4xl">👆</div>
         </div>
 
-        <button id="btn-synth" class="w-full max-w-sm bg-indigo-900/80 border border-indigo-500/30 h-12 rounded-lg flex items-center justify-between px-4 transition-all touch-manipulation shadow-lg disabled:opacity-50">
-            <span class="font-header text-xs text-indigo-100 font-bold tracking-wide uppercase">Sintetizar DNA</span>
-            <span id="cost-synth" class="font-mono text-xs text-cyan-300 bg-black/30 px-2 py-1 rounded">50 ⚡</span>
-        </button>
+        <div class="relative w-full max-w-sm">
+            <button id="btn-synth" class="w-full bg-indigo-900/80 border border-indigo-500/30 h-12 rounded-lg flex items-center justify-between px-4 transition-all touch-manipulation shadow-lg disabled:opacity-50">
+                <span class="font-header text-xs text-indigo-100 font-bold tracking-wide uppercase">Sintetizar DNA</span>
+                <span id="cost-synth" class="font-mono text-xs text-cyan-300 bg-black/30 px-2 py-1 rounded">50 ⚡</span>
+            </button>
+        </div>
 
         <div class="w-full max-w-sm h-1 bg-slate-800 rounded-full mt-2 overflow-hidden opacity-50">
             <div id="combo-bar" class="h-full bg-gradient-to-r from-pink-500 to-purple-500 w-0 transition-all duration-100"></div>
@@ -125,16 +162,21 @@
 
     <!-- TABS -->
     <nav class="shrink-0 flex border-b border-white/5 bg-black/20 z-30">
-        <button onclick="ui.tab('lab')" id="tab-lab" class="flex-1 py-3 text-xs font-header font-bold text-cyan-400 border-b-2 border-cyan-400 bg-white/5 transition-colors">
-            LABORATÓRIO <span id="count-lab" class="text-[10px] opacity-70 ml-1">0/30</span>
+        <button onclick="ui.tab('lab')" id="tab-lab" class="flex-1 py-3 text-[10px] sm:text-xs font-header font-bold text-cyan-400 border-b-2 border-cyan-400 bg-white/5 transition-colors">
+            CÂMARA <span id="count-lab" class="text-[9px] opacity-70 ml-1 block sm:inline">0/30</span>
         </button>
-        <button onclick="ui.tab('doc')" id="tab-doc" class="flex-1 py-3 text-xs font-header font-bold text-slate-500 border-b-2 border-transparent transition-colors">
-            UPGRADES <span class="text-[10px] opacity-50 ml-1">LOJA</span>
+        <button onclick="ui.tab('fusion')" id="tab-fusion" class="flex-1 py-3 text-[10px] sm:text-xs font-header font-bold text-slate-500 border-b-2 border-transparent transition-colors">
+            LABORATÓRIO <span id="count-fusion" class="text-[9px] opacity-70 ml-1 block sm:inline">0/11</span>
+        </button>
+        <button onclick="ui.tab('doc')" id="tab-doc" class="flex-1 py-3 text-[10px] sm:text-xs font-header font-bold text-slate-500 border-b-2 border-transparent transition-colors">
+            UPGRADES <span class="text-[9px] opacity-50 ml-1 block sm:inline">LOJA</span>
         </button>
     </nav>
 
     <!-- CONTENT -->
     <main class="flex-1 overflow-y-auto custom-scroll relative bg-black/20 p-3 pb-safe-bottom">
+        
+        <!-- CÂMARA VIEW -->
         <div id="view-lab" class="pb-10 min-h-full">
             <div id="lab-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
             <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-600 opacity-40 pointer-events-none">
@@ -143,6 +185,16 @@
             </div>
         </div>
 
+        <!-- LABORATÓRIO (FUSÃO) VIEW -->
+        <div id="view-fusion" class="hidden pb-10 min-h-full space-y-2">
+            <div class="glass-panel p-3 mb-4 sticky top-0 z-10 backdrop-blur-xl bg-black/60 border-purple-500/20 flex justify-between items-center">
+                <span class="text-xs text-purple-300 font-header">Mutações Avançadas</span>
+                <span class="text-[10px] text-slate-400">Poder Permanente</span>
+            </div>
+            <div id="fusion-list" class="space-y-2"></div>
+        </div>
+
+        <!-- UPGRADES VIEW -->
         <div id="view-doc" class="hidden pb-10 space-y-2">
             <div class="glass-panel p-3 flex justify-between items-center mb-4 sticky top-0 z-10 backdrop-blur-xl bg-black/60 border-yellow-500/20">
                 <span class="text-xs text-slate-400">Saldo Disponível</span>
@@ -158,8 +210,8 @@
                 <h2 class="font-header text-xl text-yellow-400 mb-2 uppercase">Publicar Tese?</h2>
                 <p class="text-xs text-slate-300 mb-6 leading-relaxed">
                     Sua pesquisa está completa. Publique para ganhar Renome Global.<br><br>
-                    <span class="text-red-400">Reinicia:</span> Energia e Coleção.<br>
-                    <span class="text-green-400">Mantém:</span> Níveis de Upgrade.<br>
+                    <span class="text-red-400">Reinicia:</span> Energia e Câmara Básica.<br>
+                    <span class="text-green-400">Mantém:</span> Níveis, Mutações e Renome.<br>
                     <span class="text-yellow-400 font-bold">Ganho: <span id="prestige-reward">0</span> ★</span>
                 </p>
                 <div class="flex flex-col gap-3">
@@ -173,23 +225,23 @@
             </div>
         </div>
 
-        <!-- TUTORIAL MODAL -->
-        <div id="tutorial-modal" class="hidden fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6">
-            <div class="w-full max-w-sm glass-panel border border-cyan-500/50 p-6 rounded-2xl shadow-xl text-center">
-                <div class="text-4xl mb-4">🧬</div>
-                <h2 class="font-header text-xl text-cyan-400 mb-4 uppercase">Bem-vindo ao Lab!</h2>
-                <div class="text-xs text-slate-300 mb-6 leading-relaxed text-left space-y-3 bg-black/30 p-4 rounded-lg">
-                    <p>👉 <b>Toque</b> rapidamente na incubadora central para gerar Energia (⚡).</p>
-                    <p>👉 <b>Sintetize DNA</b> usando 50⚡ para descobrir novas origens misteriosas.</p>
-                    <p>👉 <b>Upgrades:</b> Use Renome (★) na aba Loja para melhorar sua produção automática.</p>
-                </div>
-                <button onclick="ui.closeTutorial()" class="w-full bg-cyan-600 text-white font-bold py-3 rounded-lg text-sm active:scale-95 transition-transform shadow-[0_0_15px_rgba(0,242,255,0.4)]">
-                    INICIAR PESQUISA
+        <!-- DOUTORA SUZANA MODAL (ENDGAME) -->
+        <div id="suzana-modal" class="hidden fixed inset-0 z-[130] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6">
+            <div class="w-full max-w-sm glass-panel border border-purple-500/50 p-6 rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.3)] text-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 text-8xl opacity-10">👩‍🔬</div>
+                <div class="text-5xl mb-4">👩‍🔬</div>
+                <h2 class="font-header text-xl text-purple-400 mb-2 uppercase">Doutora Suzana diz:</h2>
+                <p class="text-xs text-slate-300 mb-6 leading-relaxed italic border-l-2 border-purple-500 pl-3 text-left">
+                    "Excelente trabalho! Você conseguiu estabilizar as 11 Mutações Avançadas através do laboratório. Nossa pesquisa atingiu um novo patamar científico.<br><br>
+                    Faça seus upgrades finais na loja e continue moldando este universo. A ciência nunca para!"
+                </p>
+                <button onclick="ui.closeSuzanaModal()" class="w-full bg-purple-600 text-white font-bold py-3 rounded-lg text-sm active:scale-95 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                    CONTINUAR PESQUISA
                 </button>
             </div>
         </div>
 
-        <!-- CRAMP WARNING MODAL (PAUSA 100 CLIQUES) -->
+        <!-- CRAMP WARNING MODAL -->
         <div id="cramp-modal" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6">
             <div class="w-full max-w-sm glass-panel border border-orange-500/50 p-6 rounded-2xl shadow-xl text-center">
                 <div class="text-4xl mb-4">⚠️</div>
@@ -206,37 +258,38 @@
     </main>
 
     <script>
+        // Banco de Dados Mantido 100% Intacto com raridades
         const ORIGENS_DB = [
-            { id: 1, n: "Não Quero", e: "😒", r: "Comum" },
-            { id: 2, n: "Tanto Faz", e: "😑", r: "Comum" },
-            { id: 3, n: "Quase Alguém", e: "👤", r: "Comum" },
-            { id: 4, n: "Fulano", e: "👔", r: "Comum" },
-            { id: 5, n: "Erro 404", e: "🚫", r: "Incomum" },
-            { id: 6, n: "Vontade Ir", e: "🏃", r: "Incomum" },
-            { id: 7, n: "Coisa Nenhuma", e: "🌫️", r: "Incomum" },
-            { id: 8, n: "Talvez Amanhã", e: "💤", r: "Comum" },
-            { id: 9, n: "Deus Me Livre", e: "😱", r: "Raro" },
-            { id: 10, n: "Sei Lá", e: "🤷‍♂️", r: "Comum" },
-            { id: 11, n: "Meio Termo", e: "⚖️", r: "Incomum" },
-            { id: 12, n: "Cansado", e: "😫", r: "Comum" },
-            { id: 13, n: "O Outro", e: "👥", r: "Raro" },
-            { id: 14, n: "Qualquer Um", e: "🎭", r: "Comum" },
-            { id: 15, n: "Só Olhando", e: "👀", r: "Incomum" },
-            { id: 16, n: "Vou Ver", e: "📱", r: "Comum" },
-            { id: 17, n: "Esqueci", e: "🧠", r: "Raro" },
-            { id: 18, n: "Nem Vi", e: "🙈", r: "Incomum" },
-            { id: 19, n: "Pois É", e: "💬", r: "Comum" },
-            { id: 20, n: "Sim Mas Não", e: "🌓", r: "Raro" },
-            { id: 21, n: "Quase Nada", e: "🤏", r: "Incomum" },
-            { id: 22, n: "Já Vou", e: "⌛", r: "Raro" },
-            { id: 23, n: "Aquele Lá", e: "👉", r: "Lendário" },
-            { id: 24, n: "Tipo Isso", e: "📐", r: "Comum" },
-            { id: 25, n: "Sei Não", e: "🤔", r: "Incomum" },
-            { id: 26, n: "Olha Só", e: "✨", r: "Lendário" },
-            { id: 27, n: "Quem Sou", e: "❓", r: "Mítico" },
-            { id: 28, n: "Faz Parte", e: "🧩", r: "Incomum" },
-            { id: 29, n: "Tô Nem Aí", e: "💅", r: "Mítico" },
-            { id: 30, n: "O Fim", e: "💀", r: "Divino" }
+            { id: 1, n: "Não Quero", e: "😒", r: "Comum" }, { id: 2, n: "Tanto Faz", e: "😑", r: "Comum" },
+            { id: 3, n: "Quase Alguém", e: "👤", r: "Comum" }, { id: 4, n: "Fulano", e: "👔", r: "Comum" },
+            { id: 5, n: "Erro 404", e: "🚫", r: "Incomum" }, { id: 6, n: "Vontade Ir", e: "🏃", r: "Incomum" },
+            { id: 7, n: "Coisa Nenhuma", e: "🌫️", r: "Incomum" }, { id: 8, n: "Talvez Amanhã", e: "💤", r: "Comum" },
+            { id: 9, n: "Deus Me Livre", e: "😱", r: "Raro" }, { id: 10, n: "Sei Lá", e: "🤷‍♂️", r: "Comum" },
+            { id: 11, n: "Meio Termo", e: "⚖️", r: "Incomum" }, { id: 12, n: "Cansado", e: "😫", r: "Comum" },
+            { id: 13, n: "O Outro", e: "👥", r: "Raro" }, { id: 14, n: "Qualquer Um", e: "🎭", r: "Comum" },
+            { id: 15, n: "Só Olhando", e: "👀", r: "Incomum" }, { id: 16, n: "Vou Ver", e: "📱", r: "Comum" },
+            { id: 17, n: "Esqueci", e: "🧠", r: "Raro" }, { id: 18, n: "Nem Vi", e: "🙈", r: "Incomum" },
+            { id: 19, n: "Pois É", e: "💬", r: "Comum" }, { id: 20, n: "Sim Mas Não", e: "🌓", r: "Raro" },
+            { id: 21, n: "Quase Nada", e: "🤏", r: "Incomum" }, { id: 22, n: "Já Vou", e: "⌛", r: "Raro" },
+            { id: 23, n: "Aquele Lá", e: "👉", r: "Lendário" }, { id: 24, n: "Tipo Isso", e: "📐", r: "Comum" },
+            { id: 25, n: "Sei Não", e: "🤔", r: "Incomum" }, { id: 26, n: "Olha Só", e: "✨", r: "Lendário" },
+            { id: 27, n: "Quem Sou", e: "❓", r: "Mítico" }, { id: 28, n: "Faz Parte", e: "🧩", r: "Incomum" },
+            { id: 29, n: "Tô Nem Aí", e: "💅", r: "Mítico" }, { id: 30, n: "O Fim", e: "💀", r: "Divino" }
+        ];
+
+        // Mutações Originais Mantidas
+        const FUSIONS_DB = [
+            { id: 101, n: "Som", e: "🔊", req: [1, 19], cost: 2000 },
+            { id: 102, n: "Tempo", e: "⏳", req: [8, 22], cost: 3500 },
+            { id: 103, n: "Elasticidade", e: "🪀", req: [11, 28], cost: 5000 },
+            { id: 104, n: "Gás", e: "💨", req: [7, 6], cost: 7500 },
+            { id: 105, n: "Água", e: "💧", req: [2, 12], cost: 10000 },
+            { id: 106, n: "Estabilidade", e: "🧱", req: [4, 24], cost: 15000 },
+            { id: 107, n: "Gravidade", e: "🌌", req: [14, 30], cost: 20000 },
+            { id: 108, n: "Lácteo", e: "🥛", req: [10, 21], cost: 30000 },
+            { id: 109, n: "Sol", e: "☀️", req: [26, 9], cost: 50000 },
+            { id: 110, n: "Rotação", e: "🌀", req: [18, 16], cost: 75000 },
+            { id: 111, n: "Lua", e: "🌙", req: [20, 25], cost: 100000 }
         ];
 
         const game = {
@@ -246,23 +299,27 @@
                 discovered: [],
                 levels: {},
                 renome: 0,
-                tutorialDone: false // Controle do tutorial
+                fusions: [],
+                tutorialStep: 0, // 0: Clicar, 1: Juntar 50, 2: Comprar, 3: Completo
+                drSuzanaSeen: false
             },
             combo: 0,
             comboTimer: null,
             lastTick: Date.now(),
             baseGen: 0,
-            sessionClicks: 0, // Contador de cliques para o aviso de câimbra
+            sessionClicks: 0,
 
             init() {
-                const save = localStorage.getItem('lab_suzana_mob_v2');
+                const save = localStorage.getItem('lab_suzana_mob_vpro2');
                 if(save) {
                     try { 
-                        this.data = {...this.data, ...JSON.parse(save)}; 
-                        // Se for um jogador veterano puxando save antigo, marca o tutorial como concluído para não incomodar
-                        if(this.data.discovered.length > 0 || this.data.gegp > 0) {
-                            this.data.tutorialDone = true;
+                        const loaded = JSON.parse(save);
+                        this.data = {...this.data, ...loaded};
+                        // Compatibilidade de save antigo para novo tutorial
+                        if(loaded.tutorialDone && this.data.tutorialStep === 0) {
+                            this.data.tutorialStep = 3;
                         }
+                        if(this.data.discovered.length > 0) this.data.tutorialStep = 3;
                     } 
                     catch(e) { console.error("Save Corrupto"); }
                 }
@@ -285,17 +342,52 @@
 
                 ui.renderLab();
                 ui.renderDoc();
-                
-                // Exibe o tutorial se for a primeira vez
-                if (!this.data.tutorialDone) {
-                    ui.showTutorial();
-                }
+                ui.renderFusion();
+                this.updateTutorialState();
 
                 this.loop();
                 setInterval(() => this.save(), 5000);
             },
 
-            save() { localStorage.setItem('lab_suzana_mob_v2', JSON.stringify(this.data)); },
+            save() { localStorage.setItem('lab_suzana_mob_vpro', JSON.stringify(this.data)); },
+
+            updateTutorialState() {
+                const guideBar = document.getElementById('guide-bar');
+                const guideText = document.getElementById('guide-text');
+                const pointer = document.getElementById('hand-pointer');
+                const synthBtn = document.getElementById('btn-synth');
+                
+                if (this.data.tutorialStep >= 3) {
+                    guideBar.classList.add('hidden');
+                    pointer.classList.add('hidden');
+                    synthBtn.classList.remove('btn-active-glow');
+                    return;
+                }
+
+                guideBar.classList.remove('hidden');
+                pointer.classList.remove('hidden');
+
+                if (this.data.tutorialStep === 0) {
+                    guideText.textContent = "Toque rápido na incubadora (🧬) para gerar energia!";
+                    // Dedo aponta para incubadora
+                    document.getElementById('btn-work').parentElement.appendChild(pointer);
+                    pointer.className = "tutorial-pointer absolute -bottom-8 left-1/2 text-4xl";
+                } 
+                else if (this.data.tutorialStep === 1) {
+                    guideText.textContent = `Continue clicando até juntar 50 ⚡! (Atual: ${Math.floor(this.data.gegp)})`;
+                    if (this.data.gegp >= 50) {
+                        this.data.tutorialStep = 2;
+                        this.updateTutorialState();
+                    }
+                } 
+                else if (this.data.tutorialStep === 2) {
+                    guideText.textContent = "Perfeito! Agora clique no botão para Sintetizar DNA!";
+                    // Dedo aponta para botão e botão brilha
+                    synthBtn.parentElement.appendChild(pointer);
+                    pointer.className = "tutorial-pointer absolute -bottom-8 left-1/2 text-4xl z-50";
+                    synthBtn.classList.add('btn-active-glow');
+                }
+            },
 
             loop() {
                 const now = Date.now();
@@ -307,18 +399,26 @@
                     prod += 0.5 * (1 + (this.data.levels[id] * 0.5));
                 });
                 
-                const globalMult = 1 + (this.data.renome * 0.15);
+                prod += this.data.fusions.length * 15;
+
+                const globalMult = 1 + (this.data.renome * 0.15) + (this.data.fusions.length * 0.1);
                 prod *= globalMult;
+                
                 this.baseGen = prod;
 
                 if (prod > 0) this.data.gegp += prod * delta;
+                
+                if (this.data.tutorialStep === 1 && this.data.gegp >= 50) {
+                    this.updateTutorialState();
+                }
+
                 ui.updateLoop(this.data.gegp, prod, this.data.suz, this.combo);
                 requestAnimationFrame(() => this.loop());
             },
 
             handleClick(x, y) {
                 this.combo++;
-                this.sessionClicks++; // Incrementa contador de cliques contínuos
+                this.sessionClicks++;
 
                 clearTimeout(this.comboTimer);
                 this.comboTimer = setTimeout(() => {
@@ -328,7 +428,7 @@
 
                 const autoBonus = this.baseGen * 0.08; 
                 const comboMult = 1 + (this.combo * 0.05);
-                const renomeMult = 1 + (this.data.renome * 0.2);
+                const renomeMult = 1 + (this.data.renome * 0.2) + (this.data.fusions.length * 0.05);
                 let gain = (1 + autoBonus) * comboMult * renomeMult;
 
                 const isCrit = Math.random() < 0.08;
@@ -339,10 +439,19 @@
                 ui.popButton();
                 ui.updateCombo(this.combo);
 
-                // Dispara o aviso a cada 100 cliques na sessão
+                if (this.data.tutorialStep === 0) {
+                    this.data.tutorialStep = 1;
+                    this.updateTutorialState();
+                } else if (this.data.tutorialStep === 1) {
+                    this.updateTutorialState(); // Atualiza texto de energia
+                }
+
+                // Câimbra warning mantido
                 if (this.sessionClicks > 0 && this.sessionClicks % 100 === 0) {
                     ui.showCrampWarning();
                 }
+                
+                if (this.sessionClicks % 10 === 0) ui.renderFusion();
             },
 
             synthesize() {
@@ -359,9 +468,38 @@
                 const next = missing[Math.floor(Math.random() * missing.length)];
                 
                 this.data.discovered.push(next.id);
+                
+                // Conclui tutorial ao comprar o primeiro personagem
+                if (this.data.tutorialStep === 2) {
+                    this.data.tutorialStep = 3;
+                    this.updateTutorialState();
+                }
+
                 ui.renderLab();
                 ui.renderDoc();
+                ui.renderFusion();
                 this.save();
+            },
+
+            fuse(id) {
+                const f = FUSIONS_DB.find(x => x.id === id);
+                if (!f || this.data.fusions.includes(id)) return;
+                
+                const reqMet = f.req.every(reqId => this.data.discovered.includes(reqId));
+                if (!reqMet || this.data.gegp < f.cost) return;
+
+                this.data.gegp -= f.cost;
+                this.data.fusions.push(id);
+                
+                ui.renderFusion();
+                this.save();
+
+                // Dra Suzana Endgame Modal mantido
+                if (this.data.fusions.length >= 11 && !this.data.drSuzanaSeen) {
+                    this.data.drSuzanaSeen = true;
+                    ui.showSuzanaModal();
+                    this.save();
+                }
             },
 
             upgradeSpecimen(id) {
@@ -382,9 +520,13 @@
                 this.data.renome++;
                 this.data.discovered = [];
                 this.data.gegp = 0;
+                
                 ui.hidePrestige();
                 ui.renderLab();
                 ui.renderDoc();
+                ui.renderFusion();
+                
+                ui.tab('lab');
                 this.save();
             }
         };
@@ -392,20 +534,29 @@
         const ui = {
             tab(t) {
                 const labV = document.getElementById('view-lab');
+                const fusionV = document.getElementById('view-fusion');
                 const docV = document.getElementById('view-doc');
+                
                 const labT = document.getElementById('tab-lab');
+                const fusionT = document.getElementById('tab-fusion');
                 const docT = document.getElementById('tab-doc');
+
+                [labV, fusionV, docV].forEach(v => v.classList.add('hidden'));
+                const baseClass = "flex-1 py-3 text-[10px] sm:text-xs font-header font-bold border-b-2 transition-colors ";
+                labT.className = baseClass + "text-slate-500 border-transparent";
+                fusionT.className = baseClass + "text-slate-500 border-transparent";
+                docT.className = baseClass + "text-slate-500 border-transparent";
 
                 if(t === 'lab') {
                     labV.classList.remove('hidden');
-                    docV.classList.add('hidden');
-                    labT.className = "flex-1 py-3 text-xs font-header font-bold text-cyan-400 border-b-2 border-cyan-400 bg-white/5 transition-colors";
-                    docT.className = "flex-1 py-3 text-xs font-header font-bold text-slate-500 border-b-2 border-transparent transition-colors";
+                    labT.className = baseClass + "text-cyan-400 border-cyan-400 bg-white/5";
+                } else if(t === 'fusion') {
+                    fusionV.classList.remove('hidden');
+                    fusionT.className = baseClass + "text-purple-400 border-purple-400 bg-white/5";
+                    this.renderFusion();
                 } else {
-                    labV.classList.add('hidden');
                     docV.classList.remove('hidden');
-                    docT.className = "flex-1 py-3 text-xs font-header font-bold text-yellow-400 border-b-2 border-yellow-400 bg-white/5 transition-colors";
-                    labT.className = "flex-1 py-3 text-xs font-header font-bold text-slate-500 border-b-2 border-transparent transition-colors";
+                    docT.className = baseClass + "text-yellow-400 border-yellow-400 bg-white/5";
                 }
             },
 
@@ -420,11 +571,18 @@
                 const btn = document.getElementById('btn-synth');
                 const costL = document.getElementById('cost-synth');
                 if (game.data.discovered.length >= 30) {
-                    btn.classList.replace('bg-indigo-900/80', 'bg-yellow-600');
+                    btn.classList.remove('bg-indigo-900/80', 'border-indigo-500/30');
+                    btn.classList.add('bg-yellow-600', 'border-yellow-400');
                     btn.querySelector('span').textContent = "PUBLICAR TESE";
                     costL.textContent = "PRONTO";
+                    btn.disabled = false;
                 } else {
-                    btn.disabled = gegp < 50;
+                    btn.classList.add('bg-indigo-900/80', 'border-indigo-500/30');
+                    btn.classList.remove('bg-yellow-600', 'border-yellow-400');
+                    btn.querySelector('span').textContent = "SINTETIZAR DNA";
+                    costL.textContent = "50 ⚡";
+                    // Mantém botão ativo visualmente se estiver no tutorial para brilhar
+                    btn.disabled = gegp < 50 && game.data.tutorialStep >= 3;
                 }
             },
 
@@ -465,8 +623,56 @@
                     const o = ORIGENS_DB.find(x => x.id === id);
                     const card = document.createElement('div');
                     card.className = "glass-panel p-2 flex flex-col items-center justify-center aspect-square border-white/10";
-                    card.innerHTML = `<div class="text-2xl">${o.e}</div><div class="text-[8px] truncate w-full text-center uppercase mt-1">${o.n}</div>`;
+                    card.innerHTML = `<div class="text-2xl">${o.e}</div><div class="text-[8px] sm:text-[9px] truncate w-full text-center uppercase mt-1">${o.n}</div>`;
                     grid.appendChild(card);
+                });
+            },
+
+            renderFusion() {
+                const view = document.getElementById('fusion-list');
+                view.innerHTML = '';
+
+                if (game.data.renome < 1) {
+                    view.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-12 px-4 text-center opacity-60">
+                            <div class="text-5xl mb-4 grayscale">🧪</div>
+                            <h3 class="font-header text-purple-400 mb-2">Acesso Negado</h3>
+                            <p class="text-xs text-slate-300">Este setor avançado requer no mínimo <b class="text-yellow-400">Renome 1</b>.<br>Publique sua primeira tese para desbloquear.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                document.getElementById('count-fusion').textContent = `${game.data.fusions.length}/11`;
+
+                FUSIONS_DB.forEach(f => {
+                    const isUnlocked = game.data.fusions.includes(f.id);
+                    const reqMet = f.req.every(reqId => game.data.discovered.includes(reqId));
+                    const reqNames = f.req.map(reqId => ORIGENS_DB.find(o => o.id === reqId).n).join(" + ");
+                    
+                    const card = document.createElement('div');
+                    card.className = `p-3 rounded-lg border bg-black/20 flex justify-between items-center ${isUnlocked ? 'border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.15)] bg-purple-900/10' : 'border-white/5'}`;
+                    
+                    let btnHtml = '';
+                    if (isUnlocked) {
+                        btnHtml = `<span class="text-[10px] text-purple-400 font-bold px-2 py-1 bg-purple-900/30 rounded">COMPLETO</span>`;
+                    } else {
+                        const canAfford = game.data.gegp >= f.cost;
+                        const fmtCost = f.cost > 999 ? (f.cost/1000).toFixed(1) + 'k' : f.cost;
+                        btnHtml = `<button onclick="game.fuse(${f.id})" class="h-8 px-3 rounded text-[10px] font-bold transition-colors ${canAfford && reqMet ? 'bg-purple-600 text-white active:scale-95' : 'bg-slate-800 text-slate-500'}" ${(!canAfford || !reqMet) ? 'disabled' : ''}>${fmtCost} ⚡</button>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="text-3xl ${isUnlocked ? '' : 'grayscale opacity-30'}">${f.e}</div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold ${isUnlocked ? 'text-purple-300' : 'text-slate-400'}">${isUnlocked ? f.n : '???'}</span>
+                                <span class="text-[9px] ${reqMet ? 'text-green-400/80' : 'text-slate-500'}">Ingredientes: ${reqNames}</span>
+                            </div>
+                        </div>
+                        ${btnHtml}
+                    `;
+                    view.appendChild(card);
                 });
             },
 
@@ -488,7 +694,7 @@
                             </div>
                         </div>
                         <button onclick="game.upgradeSpecimen(${o.id})" class="h-8 px-3 rounded text-[10px] font-bold ${game.data.suz >= cost && isKnown ? 'bg-yellow-600' : 'bg-slate-800 opacity-50'}" ${game.data.suz < cost || !isKnown ? 'disabled' : ''}>
-                            ${cost} ★
+                            ${cost > 999 ? (cost/1000).toFixed(1)+'k' : cost} ★
                         </button>`;
                     list.appendChild(item);
                 });
@@ -500,18 +706,16 @@
             },
             hidePrestige() { document.getElementById('panel-prestige').classList.add('hidden'); },
 
-            // Funções dos novos modais
-            showTutorial() { document.getElementById('tutorial-modal').classList.remove('hidden'); },
-            closeTutorial() { 
-                document.getElementById('tutorial-modal').classList.add('hidden'); 
-                game.data.tutorialDone = true;
-                game.save();
-            },
             showCrampWarning() { document.getElementById('cramp-modal').classList.remove('hidden'); },
-            closeCrampWarning() { document.getElementById('cramp-modal').classList.add('hidden'); }
+            closeCrampWarning() { document.getElementById('cramp-modal').classList.add('hidden'); },
+
+            showSuzanaModal() { document.getElementById('suzana-modal').classList.remove('hidden'); },
+            closeSuzanaModal() { document.getElementById('suzana-modal').classList.add('hidden'); }
         };
 
         window.onload = () => game.init();
     </script>
 </body>
 </html>
+
+
