@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>GEGP Brasil | 🤠👍🏻Index</title>
+    <title>GTCE Brasil | 🤠👍🏻Index</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* Reset básico para garantir que nada saia do lugar */
@@ -200,6 +200,16 @@
             .modal-buttons { flex-direction: column; }
             .btn-action { width: 100%; }
         }
+        
+        /* Destaque para o botão de alerta/mudança de contexto */
+        .btn-highlight {
+            border-color: #f59e0b;
+        }
+        .btn-highlight:hover {
+            background: #f59e0b;
+            border-color: #fbbf24;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
     </style>
 </head>
 <body class="modal-open">
@@ -207,14 +217,14 @@
     <!-- OVERLAY DE TERMOS DE USO DA GTCE -->
     <div id="termsModal">
         <div class="modal-content">
-            <!-- LOGO DO GEGP -->
-            <img src="gegp.png" alt="Logo GEGP" onerror="this.src='https://via.placeholder.com/110x110/334155/ffffff?text=GEGP'">
+            <!-- LOGO DA GTCE (Placeholder de fallback atualizado para GTCE) -->
+            <img src="gegp.png" alt="Logo GTCE" onerror="this.src='https://via.placeholder.com/110x110/334155/ffffff?text=GTCE'">
             
             <h2>Aviso da GTCE</h2>
-            <p>Bem-vindo ao GEGP Brasil. Antes de acessar nossos sistemas e jogos, é obrigatório ler e concordar com os nossos Termos de Uso oficiais fornecidos pela GTCE Holding.</p>
+            <p>Bem-vindo ao GTCE Brasil. Antes de acessar nossos sistemas e jogos, é obrigatório ler e concordar com os nossos Termos de Uso oficiais fornecidos pela GTCE Holding.</p>
             
-            <!-- Link para o PDF no MediaFire -->
-            <a href="https://www.mediafire.com/file/iv0bz9dq8ohq2wu/14_3_26_Termos+de+uso_GTCE.PDF/file" target="_blank" class="pdf-link">
+            <!-- Link para o PDF local -->
+            <a href="TermosGTCE.pdf" target="_blank" class="pdf-link">
                 📄 Ler Termos de Uso (PDF)
             </a>
 
@@ -227,7 +237,7 @@
 
     <!-- CONTEÚDO PRINCIPAL DO HUB (Inicia Oculto) -->
     <div class="container" id="mainContent">
-        <h1>🌌 GEGP BRASIL</h1>
+        <h1>🌌 GTCE BRASIL</h1>
         <div class="grid">
     
             <!-- Botão 2 -->
@@ -246,22 +256,38 @@
             <button class="menu-btn" onclick="go('HTML/LDS2.HTML')">
                 Laboratório Suzana 2
                 <div class="desc">Lab / Experimentos</div>
+            </button>
               
-              <!-- Botão 5 -->
+            <!-- Botão 5 -->
             <button class="menu-btn" onclick="go('HTML/CA.HTML')">
                Cidade Ananás 
-              <div class="desc"Mini games</div>
-                  
-           <!-- Botão 6 -->
-            <button class="menu-btn" onclick="go('https://gegpbrasil.github.io/HTML/B/GEGP-BOMBYM/index.html')">
-               Bombym e segredo do café 
-              <div class="desc"Plataforma/Desktop</div>
-
-                     <!-- Botão 7-->
-            <button class="menu-btn" onclick="go('/HTML/PQN.HTML')">
-        Parque do Não Quero(Beta)
-              <div class="desc"Batalha/RPG</div>
+              <div class="desc">Mini games</div>
             </button>
+                  
+            <!-- Botão 6 -->
+            <button class="menu-btn" onclick="go('https://gegpbrasil.github.io/HTML/B/GEGP-BOMBYM/index.html')">
+                Bombym e segredo do café 
+              <div class="desc">Plataforma/Desktop</div>
+            </button>
+
+            <!-- Botão 7-->
+            <button class="menu-btn" onclick="go('/HTML/PQN.HTML')">
+                Parque do Não Quero(Beta)
+              <div class="desc">Batalha/RPG</div>
+            </button>
+            
+            <!-- Novo Botão: Beta -->
+            <button class="menu-btn" onclick="go('HTML/beta.html')">
+                Área Beta
+              <div class="desc">Acessar testes HTML/Beta</div>
+            </button>
+            
+            <!-- Novo Botão: GTIE Index (Com aviso do GEGP) -->
+            <button class="menu-btn btn-highlight" onclick="go('Gindex.html')">
+                Index da GTIE
+              <div class="desc">Atenção: A index atual pertence ao GEGP</div>
+            </button>
+            
         </div>
     </div>
 
@@ -293,7 +319,7 @@
 
         // Função de não concordar
         function declineTerms() {
-            alert("Você optou por não concordar. O acesso ao GEGP Brasil requer a aceitação dos Termos da GTCE.");
+            alert("Você optou por não concordar. O acesso ao GTCE Brasil requer a aceitação dos Termos da GTCE.");
             // Tenta voltar para a página anterior
             if(window.history.length > 1) {
                 window.history.back();
